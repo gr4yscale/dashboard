@@ -43,8 +43,8 @@ if (!process.env.PRODUCTION) {
   new WebpackDevServer(webpack(config), {
     publicPath: config.output.publicPath,
     hot: true,
-    noInfo: false,
-    colors: true,
+    noInfo: true,
+    stats: { colors: true },
     historyApiFallback: true
   }).listen(9090, 'localhost', (err, result) => {
     if (err) {
