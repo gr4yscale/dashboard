@@ -22,8 +22,6 @@ app.get('/screens', function(req, res) {
   // // to the API (e.g. in case you use sessions)
   // res.setHeader('Access-Control-Allow-Credentials', true);
 
-  debugger;
-
   res.send(screens.screenOne())
 })
 

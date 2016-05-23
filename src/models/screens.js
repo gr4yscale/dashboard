@@ -8,8 +8,6 @@ export default class Screens {
   }
 
   screenOne() {
-    // console.log(this.todoist.data())
-
     let screenItems = []
     for (let gridScreenItem of this.screensConfig) {
       let projectId = gridScreenItem.dataSourceOptions.project_id

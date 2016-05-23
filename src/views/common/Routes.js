@@ -6,6 +6,6 @@ import HomePage from '../pages/home/page';
 
 export default (
   <Route path="/" component={Root}>
-    <IndexRoute path="home" component={HomePage} />
+    <IndexRoute component={HomePage} />
   </Route>
 );
