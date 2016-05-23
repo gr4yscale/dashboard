@@ -1,5 +1,31 @@
+
 import express from 'express';
 const app = express();
+
+import Screens from './src/models/screens'
+const screens = new Screens()
+
+// transform data from todoist items list to something more suitable for react components
+
+app.get('/screens', function(req, res) {
+
+  // Website you wish to allow to connect
+  // res.setHeader('Access-Control-Allow-Origin', 'http://http://localhost:8082');
+  //
+  // // Request methods you wish to allow
+  // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  //
+  // // Request headers you wish to allow
+  // res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  //
+  // // Set to true if you need the website to include cookies in the requests sent
+  // // to the API (e.g. in case you use sessions)
+  // res.setHeader('Access-Control-Allow-Credentials', true);
+
+  debugger;
+
+  res.send(screens.screenOne())
+})
 
 // For now we we redirect requests to our express server for app.js and style.css
 // To the Webpack dev server running on port 9090. The other option is to configure
@@ -59,7 +85,7 @@ if (!process.env.PRODUCTION) {
  *
  *************************************************************/
 
-const server = app.listen(process.env.PORT || 8080, '0.0.0.0', () => {
+const server = app.listen(process.env.PORT || 8082, 'localhost', () => {
   const host = server.address().address;
   const port = server.address().port;
   console.log('==> 🌎 Listening at http://%s:%s', host, port);
