@@ -5,14 +5,14 @@ const unirest = require('unirest')
 
 export default class DataSourceTodoist {
   constructor() {
-    this.todoistItems = []
+    this.items = []
     // every so often synchronize?
   }
 
   synchronize() {
     todoist.login({email: 'gr4yscale@gmail.com', password: '[redacted]'}, (err,user) => {
         if(err){
-            console.error(err);
+            console.log(err);
             return;
         }
         const apiToken = user.api_token;
@@ -24,12 +24,29 @@ export default class DataSourceTodoist {
         unirest.post('https://todoist.com/API/v6/sync')
         .send(requestOptions)
         .end((response) => {
-          this.todoistItems = response.body.Items
+          this.items = response.body.Items
+          console.log('* Fetched Todoist data')
         })
     })
   }
 
-  data() {
-    return this.todoistItems
+  dataForGridScreenItem(gridScreenItem) {
+    let projectId = gridScreenItem.dataSourceOptions.project_id
+    let maxItemCount = gridScreenItem.gridScreenViewOptions.maxItems
+
+    return this.items
+    .filter((item) => {
+      return item.project_id === projectId && item.indent === 1
+    })
+    .sort((a, b) => {
+      return a.item_order - b.item_order
+    })
+    .slice(0, maxItemCount).map((item) => {
+      return {
+        dataSource_id : item.id,
+        title: item.content,
+        subTitle: item.priority
+      }
+    })
   }
 }
