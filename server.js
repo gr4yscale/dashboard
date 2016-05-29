@@ -1,4 +1,4 @@
-
+import path from 'path';
 import express from 'express';
 const app = express();
 
@@ -13,7 +13,7 @@ app.get('/screens', function(req, res) {
 
 // Serve index page
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(path.resolve(__dirname + '/../src/static//index.html'));
 });
 
 /*************************************************************
