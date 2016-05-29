@@ -8,19 +8,3 @@
   flex-direction: column;
   flex: 1.0;
 }
-
-.flexItemStyle {
-  flex: 0.33;
-  flex-direction: row;
-  align-items: stretch;
-  background: #0088FF;
-
-  padding: 30px;
-  margin: 2px;
-  color: white;
-}
-
-.titleStyle {
-  font-weight: 300px;
-  font-size: 20px;
-}

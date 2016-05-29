@@ -1,5 +1,11 @@
 import React from 'react';
 import styles from './style.css';
+import ListView from '../../components/ListView.js'
+
+
+// There should be some way on the client to decide which React Components to create based on a server "screenType" enum
+// We then pass the options / data in as props
+
 
 export default class HomePage extends React.Component {
   constructor(props) {
@@ -40,18 +46,13 @@ export default class HomePage extends React.Component {
   }
 
   gridItem(index) {
-    var gridItems = this.state.items[index].data.map((data) => {
-      return (
-          <li>{data.title}</li>
-      )
-    })
+    var item = this.state.items[index];
+
+    // TOFIX: switch on item.gridViewChild to show gridItems other than a list
+    // pass in child view options and list of actions
+
     return (
-      <div className={styles.flexItemStyle}>
-        <p className={styles.titleStyle}>{this.state.items[index].title}</p>
-        <ul>
-          {gridItems}
-        </ul>
-      </div>
+      <ListView index={index} title={item.title} items={item.data} />
     )
   }
 }
