@@ -1,13 +1,10 @@
-import DataSourceTodoist from '../datasources/todoist'
-import DataSourcePinboard from '../datasources/pinboard'
 import screensConfig from './screens.json'
 
 export default class Screens {
-  constructor() {
-    this.todoist = new DataSourceTodoist()
-    this.todoist.synchronize()
-    this.pinboard = new DataSourcePinboard()
-    this.pinboard.synchronize()
+  constructor(todoist, pinboard, gcal) {
+    this.todoist = todoist
+    this.pinboard = pinboard
+    this.gcal = gcal
   }
 
   screenOne() {
@@ -20,6 +17,9 @@ export default class Screens {
           break
         case 'pinboard':
           newData['data'] = this.pinboard.unreadItems()
+          break
+        case 'gcal':
+          newData['data'] = this.gcal.eventsThisMonth()
           break
       }
       let screenItem = Object.assign(gridScreenItem, newData)
