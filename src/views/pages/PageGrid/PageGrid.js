@@ -1,7 +1,6 @@
 import React from 'react';
-import styles from './style.css';
+import styles from './PageGridStyle.css';
 import ListView from '../../components/ListView.js'
-
 
 // There should be some way on the client to decide which React Components to create based on a server "screenType" enum
 // We then pass the options / data in as props
@@ -17,22 +16,16 @@ export default class HomePage extends React.Component {
 
   render() {
     return (
-      <div className={styles.containerStyleCol}>
-        <div className={styles.containerStyle}>
-          {this.gridItem(0)}
-          {this.gridItem(1)}
-          {this.gridItem(2)}
-        </div>
-        <div className={styles.containerStyle}>
-          {this.gridItem(3)}
-          {this.gridItem(4)}
-          {this.gridItem(5)}
-        </div>
-        <div className={styles.containerStyle}>
-          {this.gridItem(6)}
-          {this.gridItem(7)}
-          {this.gridItem(8)}
-        </div>
+      <div className={styles.gridContainer}>
+        <div className={styles.gridItem}>{this.gridItem(0)}</div>
+        <div className={styles.gridItem}>{this.gridItem(1)}</div>
+        <div className={styles.gridItem}>{this.gridItem(2)}</div>
+        <div className={styles.gridItem}>{this.gridItem(3)}</div>
+        <div className={styles.gridItem}>{this.gridItem(4)}</div>
+        <div className={styles.gridItem}>{this.gridItem(5)}</div>
+        <div className={styles.gridItem}>{this.gridItem(6)}</div>
+        <div className={styles.gridItem}>{this.gridItem(7)}</div>
+        <div className={styles.gridItem}>{this.gridItem(8)}</div>
       </div>
     )
   }

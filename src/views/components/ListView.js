@@ -10,14 +10,16 @@ export default class ListView extends React.Component {
     }
     let gridItems = this.props.items.map((data) => {
       let subtitle = data.subtitle ? data.subtitle : '-'
-      return (
-          <li>{data.title}<br/>{subtitle}</li>
-      )
+      if (data.subtitle) {
+        return (<li>{data.title}<br/><i>{data.subtitle}</i></li>)
+      } else {
+        return (<li>{data.title}</li>)
+      }
     })
     return (
-      <div className={styles.flexItemStyle}>
+      <div className={styles.listViewContainer}>
         <p className={styles.titleStyle}>{this.props.title}</p>
-        <ul>
+        <ul className={styles.list}>
           {gridItems}
         </ul>
       </div>

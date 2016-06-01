@@ -1,0 +1,16 @@
+.gridContainer {
+  display: flex;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  align-content: flex-start;
+}
+
+.gridItem {
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 33.33333%;
+}
