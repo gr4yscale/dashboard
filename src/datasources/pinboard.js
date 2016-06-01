@@ -6,7 +6,7 @@ const Pinboard = require('node-pinboard')
 
 export default class DataSourcePinboard {
   constructor() {
-    this.pinboard = new Pinboard('gr4yscale:7874ba258021eab816be')
+    this.pinboard = new Pinboard(process.env.PINBOARD_API_KEY)
     this.data = []
   }
 

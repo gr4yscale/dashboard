@@ -10,7 +10,7 @@ export default class DataSourceTodoist {
   }
 
   synchronize() {
-    todoist.login({email: 'gr4yscale@gmail.com', password: '[redacted]'}, (err,user) => {
+    todoist.login({email: process.env.TODOIST_USERNAME, password: process.env.TODOIST_PASS}, (err, user) => {
         if(err){
             console.log(err);
             return;

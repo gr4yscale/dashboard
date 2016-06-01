@@ -1,11 +1,13 @@
 import path from 'path';
 import express from 'express';
 const app = express();
+import dotenv from 'dotenv'
 
 import Screens from './src/models/screens'
 const screens = new Screens()
 
 // transform data from todoist items list to something more suitable for react components
+dotenv.config()
 
 app.get('/screens', function(req, res) {
   res.send(screens.screenOne())
