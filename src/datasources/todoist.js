@@ -10,23 +10,27 @@ export default class DataSourceTodoist {
   }
 
   synchronize() {
-    todoist.login({email: process.env.TODOIST_USERNAME, password: process.env.TODOIST_PASS}, (err, user) => {
-        if(err){
-            console.log(err);
-            return;
-        }
-        const apiToken = user.api_token;
-        const requestOptions = {
-          token: apiToken,
-          seq_no: 0,
-          resource_types: '["items"]'
-        }
-        unirest.post('https://todoist.com/API/v6/sync')
-        .send(requestOptions)
-        .end((response) => {
-          this.items = response.body.Items
-          console.log('* Fetched Todoist data')
-        })
+    return new Promise((resolve, reject) => {
+      todoist.login({email: process.env.TODOIST_USERNAME, password: process.env.TODOIST_PASS}, (err, user) => {
+          if(err){
+            console.log(err)
+            reject(err)
+          } else {
+            const apiToken = user.api_token;
+            const requestOptions = {
+              token: apiToken,
+              seq_no: 0,
+              resource_types: '["items"]'
+            }
+            unirest.post('https://todoist.com/API/v6/sync')
+            .send(requestOptions)
+            .end((response) => {
+              this.items = response.body.Items
+              console.log('* Fetched Todoist data')
+              resolve(response.body.Items)
+            })
+          }
+      })
     })
   }
 
@@ -49,4 +53,5 @@ export default class DataSourceTodoist {
       }
     })
   }
+
 }

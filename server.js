@@ -50,7 +50,7 @@ const server = app.listen(process.env.PORT || 8080, 'localhost', () => {
   const host = server.address().address;
   const port = server.address().port;
   console.log('==> 🌎 Listening at http://%s:%s', host, port);
-});
+})
 
 // Google Calendar Authentication - refactor later
 passport.use(new GoogleStrategy({
@@ -66,5 +66,34 @@ passport.use(new GoogleStrategy({
   }
 ))
 
-todoist.synchronize()
-pinboard.synchronize()
+// synchronization
+const io = require('socket.io')(server)
+io.on('connection', (socket) => {
+  console.log('a socket connection was created')
+  socket.emit('an event', { some: 'data' })
+})
+
+// let httpProxy = require('http-proxy')
+// let proxy = httpProxy.createServer(8080, 'localhost').listen(8081)
+
+function sync() {
+  let p1 = todoist.synchronize()
+  let p2 = pinboard.synchronize()
+  let p3 = gcal.synchronize()
+  Promise.all([p1, p2, p3])
+  .then(() => {
+    console.log('Synced all datasources...')
+    io.sockets.emit('synchronized')
+  })
+  .catch((err) => {
+    console.log('error!')
+    console.log(err)
+  })
+}
+
+setInterval(() => {
+  console.log('Syncing datasources...')
+  sync()
+}, 60 * 0.25 * 1000) // every 15 mins
+
+sync()

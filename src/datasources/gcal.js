@@ -14,14 +14,24 @@ export default class DataSourceGCal {
   }
 
   synchronize() {
-    let todayString = moment().format()
-    let date1MonthAheadString = moment().add(31, 'days').format()
-    gcal(this.accessToken).events.list(PRIMARY_CALENDAR_ID, {singleEvents: 'true', orderBy: 'startTime', maxResults: 100, timeMin: todayString, timeMax: date1MonthAheadString}, (err, data) => {
-      if (!err) {
-        this.data = data.items
-        console.log('* Fetched Google Calendars data')
-      }
-    })
+    if (this.accessToken === '') {
+      console.log('Skipping Google Calendar sync, not authed!')
+      return Promise.resolve({no: 'data'})
+    } else {
+      return new Promise((resolve, reject) => {
+        let todayString = moment().format()
+        let date1MonthAheadString = moment().add(31, 'days').format()
+        gcal(this.accessToken).events.list(PRIMARY_CALENDAR_ID, {singleEvents: 'true', orderBy: 'startTime', maxResults: 100, timeMin: todayString, timeMax: date1MonthAheadString}, (err, data) => {
+          if (err) {
+            reject(err)
+          } else {
+            this.data = data.items
+            console.log('* Fetched Google Calendar data')
+            resolve(data.items)
+          }
+        })
+      })
+    }
   }
 
   formatData(data) {

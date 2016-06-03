@@ -31,6 +31,18 @@ export default class HomePage extends React.Component {
   }
 
   componentDidMount() {
+    this.fetchData()
+    this.socket = io()
+    this.socket.on('synchronized', () => {
+      console.log('* Fetching new data from server')
+      this.fetchData()
+    })
+    this.socket.on('connect', () => {
+      console.log('Websocket client connected to the server')
+    })
+  }
+
+  fetchData() {
     this.serverRequest = $.get('screens', (result) => {
       this.setState({
         items : result,

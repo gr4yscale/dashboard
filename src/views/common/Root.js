@@ -1,9 +1,15 @@
 import React from 'react';
 
-export default ({children}) => {
-  return (
-    <div id="container">
-      {children}
-    </div>
-  );
+export default class Root extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <div id="container">
+        {this.props.children}
+      </div>
+    )
+  }
 }
