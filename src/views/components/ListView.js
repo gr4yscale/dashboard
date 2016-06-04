@@ -1,10 +1,9 @@
-import React from 'react';
-import styles from './ListView.css';
+import React from 'react'
+import styles from './ListView.css'
 
 export default class ListView extends React.Component {
 
   render() {
-    console.log(this.props)
     if (!this.props.items) {
       return (<li>Nothing!</li>)
     }
