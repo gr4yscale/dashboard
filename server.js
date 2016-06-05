@@ -12,6 +12,7 @@ import DataSourceTodoist from './src/datasources/todoist'
 import DataSourcePinboard from './src/datasources/pinboard'
 
 dotenv.config() // load up environment variables from a .env file (which is gitignored)
+const env = process.env.NODE_ENV
 const todoist = new DataSourceTodoist()
 const pinboard = new DataSourcePinboard()
 const gcal = new DataSourceGCal()
@@ -26,17 +27,38 @@ app.use(bodyParser.urlencoded({
 }))
 app.use(bodyParser.json())
 app.use(session({ secret: 'yeauhhhhh', resave: true, saveUninitialized: true}))
-app.use(passport.initialize());
+app.use(passport.initialize())
+
+let basePath = ''
+if (env == 'production') {
+  basePath = '/public/'
+} else {
+  basePath = '/../src/static/';
+}
 
 app.get('/screens', function(req, res) {
-  // if(!req.session.access_token) return res.redirect('/auth');
-  // var accessToken = req.session.access_token;
   res.send(screens.screenOne())
 })
 
 app.get('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname + '/../src/static//index.html'));
-});
+  res.sendFile(path.resolve(__dirname + basePath + 'index.html'))
+})
+
+app.get('/app.js', (req, res) => {
+  res.sendFile(path.resolve(__dirname + basePath + 'app.js'));
+})
+
+app.get('/app.js.map', (req, res) => {
+  res.sendFile(path.resolve(__dirname + basePath + 'app.js.map'));
+})
+
+app.get('/style.css', (req, res) => {
+  res.sendFile(path.resolve(__dirname + basePath + 'style.css'));
+})
+
+app.get('/style.css.map', (req, res) => {
+  res.sendFile(path.resolve(__dirname + basePath + 'style.css.map'));
+})
 
 app.get('/authGoogle', passport.authenticate('google', { session: false } ))
 
@@ -46,7 +68,7 @@ app.get('/auth/callback', passport.authenticate('google', { session: false, fail
   res.redirect('/')
 })
 
-const server = app.listen(process.env.PORT || 8080, 'localhost', () => {
+const server = app.listen(process.env.PORT || 8080, () => {
   const host = server.address().address;
   const port = server.address().port;
   console.log('==> 🌎 Listening at http://%s:%s', host, port);

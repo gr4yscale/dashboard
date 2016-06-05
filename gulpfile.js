@@ -16,22 +16,32 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 // Frontend webpack configuration
 
-var frontendWebpackConfig = {
+var frontendEntrypoints = []
+var loaders = []
 
+if (process.env.NODE_ENV == 'production') {
+  frontendEntrypoints = ['./src/client']
+  loaders = ['babel-loader']
+} else {
   // react hot module replacement requires these 2 additional entry files
-  entry: [
+  frontendEntrypoints = [
     'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
     './src/client'
-  ],
+  ]
+  loaders = ['react-hot', 'babel-loader']
+}
+
+var frontendWebpackConfig = {
+  entry: frontendEntrypoints,
   output: {
     filename: 'app.js',
-    path: __dirname + '/public/',
-    publicPath: 'http://localhost:3000/public/'
+    path: __dirname + '/public',
+    publicPath: 'http://localhost:3000/'
   },
   module: {
     loaders: [
-      {test: /\.js$/, exclude: /node_modules/, loaders: ['react-hot', 'babel-loader'] },
+      {test: /\.js$/, exclude: /node_modules/, loaders: loaders },
       // this moves all of the individual style.css files that are saved alongside react components into one amalgamated css bundle file.
       {test: /\.css$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss-loader')}
     ]
@@ -46,7 +56,9 @@ var frontendWebpackConfig = {
     require('autoprefixer'), // Automatically include vendor prefixes
     require('postcss-nested') // Enable nested rules, like in Sass
   ]
-};
+}
+
+
 
 // Server side webpack configuration
 
@@ -126,8 +138,10 @@ function onBuild(done) {
 }
 
 gulp.task('frontend-build', function(done) {
-  webpack(frontendWebpackConfig).run(onBuild(done));
-});
+  // bundle up the js
+  webpack(frontendWebpackConfig).run(onBuild(done))
+  gulp.src('./src/static/index.html').pipe(gulp.dest('./public/'));
+})
 
 gulp.task('frontend-watch', function() {
   new WebpackDevServer(webpack(frontendWebpackConfig), {
