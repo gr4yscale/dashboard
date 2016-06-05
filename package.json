@@ -4,7 +4,7 @@
   "description": "a dashboard which fetches data from various sources and presents it in a concise way",
   "main": "src/client.js",
   "scripts": {
-    "start": "node start_server.js",
+    "start": "node server.js",
     "build": "webpack -p --progress --config webpack.production.config.js",
     "clean": "rm public/app.js"
   },
