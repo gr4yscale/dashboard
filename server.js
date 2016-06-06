@@ -13,6 +13,8 @@ import DataSourcePinboard from './src/datasources/pinboard'
 
 dotenv.config() // load up environment variables from a .env file (which is gitignored)
 const env = process.env.NODE_ENV
+let syncIntervalMins = (env == 'production') ? 5 : 1
+
 const todoist = new DataSourceTodoist()
 const pinboard = new DataSourcePinboard()
 const gcal = new DataSourceGCal()
@@ -124,6 +126,6 @@ function sync() {
 setInterval(() => {
   console.log('Syncing datasources...')
   sync()
-}, 60 * 0.25 * 1000) // every 15 mins
+}, syncIntervalMins * 60 * 1000)
 
 sync()
