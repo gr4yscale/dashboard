@@ -75,6 +75,14 @@ const server = app.listen(process.env.PORT || 8080, () => {
 })
 
 // Google Calendar Authentication - refactor later
+
+let callbackHostName = ''
+if (env == 'production') {
+  callbackHostName = 'http://dashboard.gr4yscale.com:8080'
+} else {
+  callbackHostName = 'http://localhost:3000'
+}
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
