@@ -87,7 +87,7 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     // TOFIX: conditionally set the callback URL hostname based on environment
-    callbackURL: 'http://localhost:3000/auth/callback',
+    callbackURL: callbackHostName + '/auth/callback',
     scope: ['openid', 'email', 'https://www.googleapis.com/auth/calendar']
   },
   (accessToken, refreshToken, profile, done) => {
