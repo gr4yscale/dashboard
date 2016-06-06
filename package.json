@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "build": "webpack -p --progress --config webpack.production.config.js",
+    "deploy": "gulp build; git reset HEAD; git add build; git add public; git commit -m 'update bundle for deploy'; git push -f dashboard-1 HEAD",
     "clean": "rm public/app.js"
   },
   "author": "",
