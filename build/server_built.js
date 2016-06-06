@@ -123,7 +123,7 @@ require("source-map-support").install();
 	}
 
 	app.get('/screens', function (req, res) {
-	  res.send(screens.screenOne());
+	  res.send(screens.screens());
 	});
 
 	app.get('/', function (req, res) {
@@ -264,8 +264,8 @@ require("source-map-support").install();
 	  }
 
 	  (0, _createClass3.default)(Screens, [{
-	    key: 'screenOne',
-	    value: function screenOne() {
+	    key: 'screens',
+	    value: function screens() {
 	      var screenItems = [];
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
@@ -273,21 +273,44 @@ require("source-map-support").install();
 
 	      try {
 	        for (var _iterator = (0, _getIterator3.default)(_screens2.default), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	          var gridScreenItem = _step.value;
+	          var screenItem = _step.value;
 
-	          var newData = { data: '' };
-	          switch (gridScreenItem.dataSource) {
-	            case 'todoist':
-	              newData['data'] = this.todoist.dataForGridScreenItem(gridScreenItem);
+	          switch (screenItem.type) {
+	            // handle grid screens
+	            case 'grid':
+	              var gridScreenItems = [];
+	              var _iteratorNormalCompletion2 = true;
+	              var _didIteratorError2 = false;
+	              var _iteratorError2 = undefined;
+
+	              try {
+	                for (var _iterator2 = (0, _getIterator3.default)(screenItem.items), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                  var gridScreenItem = _step2.value;
+
+	                  var newData = this.dataForGridScreenItem(gridScreenItem);
+	                  var _screenItem = (0, _assign2.default)({}, gridScreenItem, newData);
+	                  gridScreenItems.push(_screenItem);
+	                }
+	              } catch (err) {
+	                _didIteratorError2 = true;
+	                _iteratorError2 = err;
+	              } finally {
+	                try {
+	                  if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                    _iterator2.return();
+	                  }
+	                } finally {
+	                  if (_didIteratorError2) {
+	                    throw _iteratorError2;
+	                  }
+	                }
+	              }
+
+	              screenItem.items = gridScreenItems;
 	              break;
-	            case 'pinboard':
-	              newData['data'] = this.pinboard.unreadItems();
-	              break;
-	            case 'gcal':
-	              newData['data'] = this.gcal.eventsThisMonth();
+	            case 'detail':
 	              break;
 	          }
-	          var screenItem = (0, _assign2.default)(gridScreenItem, newData);
 	          screenItems.push(screenItem);
 	        }
 	      } catch (err) {
@@ -306,6 +329,23 @@ require("source-map-support").install();
 	      }
 
 	      return screenItems;
+	    }
+	  }, {
+	    key: 'dataForGridScreenItem',
+	    value: function dataForGridScreenItem(gridScreenItem) {
+	      var newData = { data: '' };
+	      switch (gridScreenItem.dataSource) {
+	        case 'todoist':
+	          newData['data'] = this.todoist.dataForGridScreenItem(gridScreenItem);
+	          break;
+	        case 'pinboard':
+	          newData['data'] = this.pinboard.unreadItems();
+	          break;
+	        case 'gcal':
+	          newData['data'] = this.gcal.eventsThisMonth();
+	          break;
+	      }
+	      return newData;
 	    }
 	  }]);
 	  return Screens;
@@ -431,124 +471,269 @@ require("source-map-support").install();
 	module.exports = [
 		{
 			"index": 0,
-			"title": "Inbox",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 157472345
-			},
-			"gridScreenView": "list",
-			"gridScreenViewOptions": {
-				"maxItems": 8
-			},
-			"sort_order": 0,
-			"transformer": "todoistListTransformers"
+			"description": "Main screen",
+			"type": "grid",
+			"items": [
+				{
+					"index": 0,
+					"title": "Quick Tasks",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709951
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 1,
+					"title": "Correspondence",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 158490814
+					},
+					"gridScreenView": "singleItem",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 2,
+					"title": "Errands / Shopping",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709955
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 3,
+					"title": "Admin",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 164223196
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 4,
+					"title": "Inbox",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 157472345
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 5,
+					"title": "Routine",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150714182
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 6,
+					"title": "Study / Uni",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150710059
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 7,
+					"title": "Projects",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150718495
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 8,
+					"title": "Unread Articles",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 156908333
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				}
+			]
 		},
 		{
 			"index": 1,
-			"title": "Quick Tasks",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 150709951
-			},
-			"gridScreenView": "list",
-			"gridScreenViewOptions": {
-				"maxItems": 8
-			},
-			"sort_order": 0,
-			"transformer": "todoistListTransformers"
-		},
-		{
-			"index": 2,
-			"title": "Correspondence",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 158490814
-			},
-			"gridScreenView": "singleItem",
-			"gridScreenViewOptions": {
-				"maxItems": 8
-			},
-			"sort_order": 0,
-			"transformer": "todoistListTransformers"
-		},
-		{
-			"index": 3,
-			"title": "Errands / Shopping",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 150709955
-			},
-			"gridScreenView": "list",
-			"gridScreenViewOptions": {
-				"maxItems": 8
-			},
-			"sort_order": 0,
-			"transformer": "todoistListTransformers"
-		},
-		{
-			"index": 4,
-			"title": "Admin",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 164223196
-			},
-			"gridScreenView": "list",
-			"gridScreenViewOptions": {
-				"maxItems": 8
-			},
-			"sort_order": 0,
-			"transformer": "todoistListTransformers"
-		},
-		{
-			"index": 5,
-			"title": "Study / Uni",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 150710059
-			},
-			"gridScreenView": "list",
-			"gridScreenViewOptions": {
-				"maxItems": 8
-			},
-			"sort_order": 0,
-			"transformer": "todoistListTransformers"
-		},
-		{
-			"index": 6,
-			"title": "Projects",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 150718495
-			},
-			"gridScreenView": "list",
-			"gridScreenViewOptions": {
-				"maxItems": 8
-			},
-			"sort_order": 0,
-			"transformer": "todoistListTransformers"
-		},
-		{
-			"index": 7,
-			"title": "Events This Week",
-			"dataSource": "gcal",
-			"dataSourceOptions": {},
-			"gridScreenView": "list",
-			"gridScreenViewOptions": {
-				"maxItems": 20
-			},
-			"sort_order": 0,
-			"transformer": "todoistListTransformers"
-		},
-		{
-			"index": 8,
-			"title": "Pinboard Unread",
-			"dataSource": "pinboard",
-			"dataSourceOptions": {},
-			"gridScreenView": "list",
-			"gridScreenViewOptions": {
-				"maxItems": 8
-			},
-			"sort_order": 0
+			"description": "Yo",
+			"type": "grid",
+			"items": [
+				{
+					"index": 0,
+					"title": "FFFFFFFFFFF",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 158490814
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 1,
+					"title": "Correspondence",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709951
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 2,
+					"title": "MHMMMMM",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709955
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 3,
+					"title": "Admin",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 164223196
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 4,
+					"title": "Inbox",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 157472345
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 5,
+					"title": "Routine",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150714182
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 6,
+					"title": "Study / Uni",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150710059
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 7,
+					"title": "Projects",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150718495
+					},
+					"gridScreenView": "singleItem",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				},
+				{
+					"index": 8,
+					"title": "Unread Articles",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 156908333
+					},
+					"gridScreenView": "list",
+					"gridScreenViewOptions": {
+						"maxItems": 8
+					},
+					"sort_order": 0,
+					"transformer": "todoistListTransformers"
+				}
+			]
 		}
 	];
 

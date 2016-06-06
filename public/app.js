@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "915842127b1eb67844fd"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "dd60b4f95dc197e0053a"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -616,7 +616,7 @@
 
 	var _Routes2 = _interopRequireDefault(_Routes);
 
-	__webpack_require__(651);
+	__webpack_require__(649);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -642,6 +642,8 @@
 	    _Routes2.default
 	  )
 	), document.getElementById('app')); // make sure to use app element ID in .html
+
+	store.dispatch('SELECT_SCREEN', { screenIndex: 0 });
 
 /***/ },
 /* 2 */
@@ -36127,10 +36129,6 @@
 
 	var _PageGrid2 = _interopRequireDefault(_PageGrid);
 
-	var _page = __webpack_require__(649);
-
-	var _page2 = _interopRequireDefault(_page);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	exports.default = _react2.default.createElement(
@@ -36188,7 +36186,6 @@
 	  (0, _createClass3.default)(Root, [{
 	    key: 'render',
 	    value: function render() {
-	      console.log(this.props);
 	      return _react2.default.createElement(
 	        'div',
 	        { id: 'container' },
@@ -37797,7 +37794,6 @@
 	  (0, _createClass3.default)(HomePage, [{
 	    key: 'render',
 	    value: function render() {
-	      console.log(this.props);
 	      return _react2.default.createElement(
 	        'div',
 	        { className: _PageGridStyle2.default.gridContainer },
@@ -37870,7 +37866,7 @@
 
 	      this.serverRequest = $.get('screens', function (result) {
 	        _this3.setState({
-	          items: result
+	          items: result[0].items
 	        });
 	      });
 	    }
@@ -38139,103 +38135,6 @@
 
 /***/ },
 /* 649 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _getPrototypeOf = __webpack_require__(556);
-
-	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
-
-	var _classCallCheck2 = __webpack_require__(582);
-
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-	var _createClass2 = __webpack_require__(583);
-
-	var _createClass3 = _interopRequireDefault(_createClass2);
-
-	var _possibleConstructorReturn2 = __webpack_require__(587);
-
-	var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-	var _inherits2 = __webpack_require__(634);
-
-	var _inherits3 = _interopRequireDefault(_inherits2);
-
-	var _react = __webpack_require__(300);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _style = __webpack_require__(650);
-
-	var _style2 = _interopRequireDefault(_style);
-
-	var _ListView = __webpack_require__(644);
-
-	var _ListView2 = _interopRequireDefault(_ListView);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var ListTest = function (_React$Component) {
-	  (0, _inherits3.default)(ListTest, _React$Component);
-
-	  function ListTest(props) {
-	    (0, _classCallCheck3.default)(this, ListTest);
-
-	    var _this = (0, _possibleConstructorReturn3.default)(this, (0, _getPrototypeOf2.default)(ListTest).call(this, props));
-
-	    _this.state = {
-	      items: [{ data: [{ title: 'hack' }] }, { data: [{ title: 'hack' }] }, { data: [{ title: 'hack' }] }, { data: [{ title: 'hack' }] }, { data: [{ title: 'hack' }] }, { data: [{ title: 'hack' }] }, { data: [{ title: 'hack' }] }, { data: [{ title: 'hack' }] }, { data: [{ title: 'hack' }] }]
-	    };
-	    return _this;
-	  }
-
-	  (0, _createClass3.default)(ListTest, [{
-	    key: 'render',
-	    value: function render() {
-	      var item = this.state.items[0];
-	      return _react2.default.createElement(_ListView2.default, { index: 0, title: item.title, items: item.data });
-	    }
-	  }, {
-	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      var _this2 = this;
-
-	      this.serverRequest = $.get('screens', function (result) {
-	        _this2.setState({
-	          items: result
-	        });
-	      });
-	    }
-	  }, {
-	    key: 'gridItem',
-	    value: function gridItem(index) {
-	      var item = this.state.items[index];
-
-	      // TOFIX: switch on item.gridViewChild to show gridItems other than a list
-	      // pass in child view options and list of actions
-
-	      return _react2.default.createElement(_ListView2.default, { index: index, title: item.title, items: item.data });
-	    }
-	  }]);
-	  return ListTest;
-	}(_react2.default.Component);
-
-	exports.default = ListTest;
-
-/***/ },
-/* 650 */
-/***/ function(module, exports) {
-
-	// removed by extract-text-webpack-plugin
-
-/***/ },
-/* 651 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin
