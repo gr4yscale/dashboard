@@ -1,6 +1,7 @@
-import React from 'react';
+import React from 'react'
+import { connect } from 'react-redux'
 
-export default class Root extends React.Component {
+class Root extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -13,3 +14,5 @@ export default class Root extends React.Component {
     )
   }
 }
+
+export default connect()(Root)

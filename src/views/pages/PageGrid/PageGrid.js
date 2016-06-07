@@ -1,5 +1,7 @@
-import React from 'react';
-import styles from './PageGridStyle.css';
+import React from 'react'
+import { connect } from 'react-redux'
+
+import styles from './PageGridStyle.css'
 import ListView from '../../components/ListView'
 import ViewFactory from '../../common/ViewFactory'
 
@@ -7,7 +9,7 @@ import ViewFactory from '../../common/ViewFactory'
 // We then pass the options / data in as props
 
 
-export default class HomePage extends React.Component {
+class PageGrid extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -31,29 +33,9 @@ export default class HomePage extends React.Component {
     )
   }
 
-  componentDidMount() {
-    this.fetchData()
-    this.socket = io()
-    this.socket.on('synchronized', () => {
-      console.log('* Fetching new data from server')
-      this.fetchData()
-    })
-    this.socket.on('connect', () => {
-      console.log('Websocket client connected to the server')
-    })
-  }
-
-  fetchData() {
-    this.serverRequest = $.get('screens', (result) => {
-      this.setState({
-        items : result,
-      })
-    })
-  }
 
   gridItem(index) {
-    let item = this.state.items[index];
-
+    let item = this.props.items[index];
     let props = {
       index,
       title: item.title,
@@ -64,3 +46,11 @@ export default class HomePage extends React.Component {
     return ViewFactory(item.gridScreenView, props)
   }
 }
+
+export default connect(
+  (state) => {
+    return {
+      items: state.screens[state.screenIndex].items,
+    }
+  }
+)(PageGrid)
