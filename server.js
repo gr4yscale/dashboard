@@ -39,7 +39,7 @@ if (env == 'production') {
 }
 
 app.get('/screens', function(req, res) {
-  res.send(screens.screenOne())
+  res.send(screens.screens())
 })
 
 app.get('/', (req, res) => {

@@ -5,7 +5,7 @@ import {bindActionCreators} from 'redux'
 import * as screenActions from './../../../redux/actions/screenActions'
 
 import styles from './ScreenSelector.css'
-import PageGrid from '../PageGrid/PageGrid'
+import ViewFactory from '../../common/ViewFactory'
 
 class ScreenSelector extends React.Component {
   constructor(props) {
@@ -25,21 +25,11 @@ class ScreenSelector extends React.Component {
     })
   }
 
-  reactElementForScreenType(viewType, propsToPass) {
-    let returnedElement;
-    switch (viewType) {
-      case 'grid':
-        returnedElement = React.createElement(PageGrid, propsToPass)
-        break
-    }
-    return returnedElement
-  }
-
   render() {
-    if (this.props.screens) {
+    if (this.props.screens.length > 0) {
       let screen = this.props.screens[this.props.screenIndex]
-      let element = this.reactElementForScreenType(screen.type, screen.data)
-      return (element)
+      let data = screen.data ? screen.data : screen
+      return (ViewFactory(screen.type, data))
     } else {
       return (<p>its coming</p>)
     }

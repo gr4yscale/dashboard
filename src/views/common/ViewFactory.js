@@ -1,6 +1,7 @@
 import React from 'react'
 import ListView from '../components/ListView'
 import SingleItemView from '../components/SingleItemView'
+import PageGrid from '../pages/PageGrid/PageGrid'
 
 const ViewFactory = (viewType, propsToPass) => {
   let returnedView;
@@ -11,6 +12,8 @@ const ViewFactory = (viewType, propsToPass) => {
     case 'singleItem':
       returnedView = React.createElement(SingleItemView, propsToPass)
       break
+    case 'grid':
+      returnedView = React.createElement(PageGrid, propsToPass)
   }
   return returnedView
 }

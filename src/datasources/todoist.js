@@ -34,9 +34,9 @@ export default class DataSourceTodoist {
     })
   }
 
-  dataForGridScreenItem(gridScreenItem) {
-    let projectId = gridScreenItem.dataSourceOptions.project_id
-    let maxItemCount = gridScreenItem.gridScreenViewOptions.maxItems
+  dataForScreenItem(screenItem) {
+    let projectId = screenItem.dataSourceOptions.project_id
+    let maxItemCount = screenItem.viewOptions.maxItems
 
     return this.items
     .filter((item) => {
