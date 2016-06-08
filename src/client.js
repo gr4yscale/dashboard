@@ -16,6 +16,8 @@ import Routes from './views/common/Routes'
 // Base styling
 import './views/common/base.css'
 
+import { selectScreen } from './redux/actions/screenActions'
+
 const store = createStore(
   rootReducer,
   compose(
@@ -33,3 +35,11 @@ ReactDOM.render((
   </Provider>
 ), document.getElementById('app')) // make sure to use app element ID in .html
 
+// keyboard shortcuts
+document.body.addEventListener('keypress', (event) => {
+  let numberPattern = /[0-9]/g
+  if (numberPattern.test(event.key)) {
+    let number = parseInt(event.key)
+    store.dispatch(selectScreen(number - 1))
+  }
+})
