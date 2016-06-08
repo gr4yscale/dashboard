@@ -1,5 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import styles from './base.css'
 
 class Root extends React.Component {
   constructor(props) {
@@ -8,7 +9,7 @@ class Root extends React.Component {
 
   render() {
     return (
-      <div id="container">
+      <div className={styles.rootContainer}>
         {this.props.children}
       </div>
     )
