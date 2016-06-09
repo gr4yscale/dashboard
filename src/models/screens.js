@@ -23,6 +23,7 @@ export default class Screens {
           screenItem.items = gridScreenItems
           break
         case 'list':
+        case 'singleItem':                                        // for now singleItems get data in an items array to select a single item from
           let newData = this.dataForListItem(screenItem)
           screenItem = Object.assign({}, screenItem, newData)
           break

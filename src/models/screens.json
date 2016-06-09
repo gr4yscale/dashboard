@@ -1,123 +1,181 @@
 [
   {
-    "index": 0,
-    "title": "Inbox",
+    "index" : 0,
+    "description" : "Main screen",
+    "type": "grid",
+    "items" : [
+      {
+        "index": 0,
+        "title": "Inbox",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 150709951
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 1,
+        "title": "Correspondence",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 158490814
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 2,
+        "title": "Errands / Shopping",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 150709955
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 3,
+        "title": "Calendar",
+        "dataSource": "gcal",
+        "dataSourceOptions": {
+          "project_id": 157472345
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 4,
+        "title": "Goals, Long Term",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 171123853
+        },
+        "gridScreenView": "singleItem",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 5,
+        "title": "Routine Reinforcements",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 150714182
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      }]
+  },
+
+  {
+    "index" : 1,
+    "description" : "Secondary",
+    "type": "grid",
+    "items" : [{
+        "index": 0,
+        "title": "Study / Uni",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 150710059
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 15
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 1,
+        "title": "Projects",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 150718495
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 15
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 2,
+        "title": "Unread Articles",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 156908333
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 15
+        },
+        "sort_order": 0
+      }]
+  },
+
+  {
+    "index" : 2,
+    "description" : "Yo",
+    "title" : "Yo",
+    "type": "grid",
+    "items" : [
+      {
+        "index": 0,
+        "title": "Inbox",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 150709951
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 0,
+        "title": "Inbox",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 150709951
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      }
+    ]
+  },
+
+
+  {
+    "index" : 3,
+    "description": "Goals, Long Term",
+    "title": "Goals, Long Term",
+    "type": "singleItem",
     "dataSource": "todoist",
     "dataSourceOptions": {
-      "project_id": 157472345
+      "project_id": 171123853
     },
-    "gridScreenView": "list",
-    "gridScreenViewOptions": {
-      "maxItems": 8
-    },
-    "sort_order": 0,
-    "transformer": "todoistListTransformers"
-  },
-  {
-    "index": 1,
-    "title": "Quick Tasks",
-    "dataSource": "todoist",
-    "dataSourceOptions": {
-      "project_id": 150709951
-    },
-    "gridScreenView": "list",
-    "gridScreenViewOptions": {
-      "maxItems": 8
-    },
-    "sort_order": 0,
-    "transformer": "todoistListTransformers"
-  },
-  {
-    "index": 2,
-    "title": "Correspondence",
-    "dataSource": "todoist",
-    "dataSourceOptions": {
-      "project_id": 158490814
-    },
-    "gridScreenView": "singleItem",
-    "gridScreenViewOptions": {
-      "maxItems": 8
-    },
-    "sort_order": 0,
-    "transformer": "todoistListTransformers"
-  },
-  {
-    "index": 3,
-    "title": "Errands / Shopping",
-    "dataSource": "todoist",
-    "dataSourceOptions": {
-      "project_id": 150709955
-    },
-    "gridScreenView": "list",
-    "gridScreenViewOptions": {
-      "maxItems": 8
-    },
-    "sort_order": 0,
-    "transformer": "todoistListTransformers"
-  },
-  {
-    "index": 4,
-    "title": "Admin",
-    "dataSource": "todoist",
-    "dataSourceOptions": {
-      "project_id": 164223196
-    },
-    "gridScreenView": "list",
-    "gridScreenViewOptions": {
-      "maxItems": 8
-    },
-    "sort_order": 0,
-    "transformer": "todoistListTransformers"
-  },
-  {
-    "index": 5,
-    "title": "Study / Uni",
-    "dataSource": "todoist",
-    "dataSourceOptions": {
-      "project_id": 150710059
-    },
-    "gridScreenView": "list",
-    "gridScreenViewOptions": {
-      "maxItems": 8
-    },
-    "sort_order": 0,
-    "transformer": "todoistListTransformers"
-  },
-  {
-    "index": 6,
-    "title": "Projects",
-    "dataSource": "todoist",
-    "dataSourceOptions": {
-      "project_id": 150718495
-    },
-    "gridScreenView": "list",
-    "gridScreenViewOptions": {
-      "maxItems": 8
-    },
-    "sort_order": 0,
-    "transformer": "todoistListTransformers"
-  },
-  {
-    "index": 7,
-    "title": "Events This Week",
-    "dataSource": "gcal",
-    "dataSourceOptions": { },
-    "gridScreenView": "list",
-    "gridScreenViewOptions": {
-      "maxItems": 20
-    },
-    "sort_order": 0,
-    "transformer": "todoistListTransformers"
-  },
-  {
-    "index": 8,
-    "title": "Pinboard Unread",
-    "dataSource": "pinboard",
-    "dataSourceOptions": {},
-    "gridScreenView": "list",
-    "gridScreenViewOptions": {
-      "maxItems": 8
-    },
-    "sort_order": 0
+    "viewOptions": {
+      "maxItems": 10
+    }
   }
 ]

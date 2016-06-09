@@ -20,19 +20,16 @@ class PageGrid extends React.Component {
   render() {
     return (
       <div className={styles.gridContainer}>
-        <div className={styles.gridItem}>{this.gridItem(0)}</div>
-        <div className={styles.gridItem}>{this.gridItem(1)}</div>
-        <div className={styles.gridItem}>{this.gridItem(2)}</div>
-        <div className={styles.gridItem}>{this.gridItem(3)}</div>
-        <div className={styles.gridItem}>{this.gridItem(4)}</div>
-        <div className={styles.gridItem}>{this.gridItem(5)}</div>
-        <div className={styles.gridItem}>{this.gridItem(6)}</div>
-        <div className={styles.gridItem}>{this.gridItem(7)}</div>
-        <div className={styles.gridItem}>{this.gridItem(8)}</div>
+        {this.gridItems()}
       </div>
     )
   }
 
+  gridItems() {
+    return this.props.items.map((item, index) => {
+      return (<div className={styles.gridItem}>{this.gridItem(index)}</div>)
+    })
+  }
 
   gridItem(index) {
     let item = this.props.items[index];

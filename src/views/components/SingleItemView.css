@@ -1,0 +1,16 @@
+.singleItemListViewContainer {
+  display: flex;
+  flex: 1;
+  margin: 0;
+  padding: 20px;
+  justify-content: center;
+  /*align-items: center;*/
+  flex-direction: column;
+}
+
+.singleItemListViewList {
+  font-weight: 500px;
+  font-size: 32px;
+  color: #FFFFFF;
+  text-align: center;
+}

@@ -20,7 +20,7 @@ export default class DataSourceGCal {
     } else {
       return new Promise((resolve, reject) => {
         let todayString = moment().format()
-        let date1MonthAheadString = moment().add(31, 'days').format()
+        let date1MonthAheadString = moment().add(10, 'days').format()
         gcal(this.accessToken).events.list(PRIMARY_CALENDAR_ID, {singleEvents: 'true', orderBy: 'startTime', maxResults: 100, timeMin: todayString, timeMax: date1MonthAheadString}, (err, data) => {
           if (err) {
             reject(err)
