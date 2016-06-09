@@ -1,67 +1,30 @@
-.PageGridStyle__gridContainer___LJ3RV {
+
+.base__rootContainer___1S7rP {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   display: -webkit-box;
-  display: flex;
   display: -ms-flexbox;
-  display: -webkit-flex;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-  -webkit-box-orient: horizontal;
+  display: flex;
+  -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: row;
-          flex-direction: row;
-  -webkit-box-pack: justify;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-  -ms-flex-line-pack: start;
-      align-content: flex-start;
-}
-
-.PageGridStyle__gridItem___2fcMT {
-  -webkit-box-flex: 0;
-      -ms-flex-positive: 0;
-          flex-grow: 0;
-  -ms-flex-negative: 0;
-      flex-shrink: 0;
-  width: 33.33333%;
-}
-
-.ListView__titleStyle___2ArQI {
-  font-weight: 500px;
-  font-size: 24px;
-  color: #FFFFFF;
-  padding-left: 18px;
-  padding-top: 8px;
-  padding-bottom: 0px;
-  margin: 0px;
-}
-
-.ListView__listViewContainer___1FTXV {
-  margin: 2px;
+      -ms-flex-direction: column;
+          flex-direction: column;
   background-color: #1E2127;
-  height: 100%;
 }
 
-.ListView__list___2vsni {
-  overflow: hidden;
-  height: 224px;
-  margin-top: 0px;
+body {
+  margin: 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
-.SingleItemView__SingleItemListViewContainer___28wXm {
-  margin: 2px;
-  background-color: #1E2127;
-  height: 100%;
-  -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
-}
-#base__app___31s9u {
-  min-height:100%;
-  height: 100%;
-  margin: 8px;
-}
+
 
 /*************************************************
 * Everything below was lifted from spectre.css  *
@@ -80,12 +43,7 @@ html {
   -ms-text-size-adjust: 100%;
   /* 2 */
 }
-/**
- * Remove the margin in all browsers (opinionated).
- */
-body {
-  margin: 0;
-}
+
 /* HTML5 display definitions
    ========================================================================== */
 /**
@@ -583,3 +541,87 @@ pre code {
   margin-bottom: 0;
   margin-top: 0;
 }
+
+.ListView__titleStyle___2ArQI {
+  font-weight: 500px;
+  font-size: 24px;
+  color: #FFFFFF;
+  padding-bottom: 0px;
+  margin: 0px;
+}
+
+.ListView__listViewContainer___1FTXV {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  margin: 0;
+  padding: 20px;
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+.ListView__list___2vsni {
+  margin: 0;
+  list-style-type: none;
+  word-break: break-all;
+  word-wrap:break-word;
+}
+.SingleItemView__singleItemListViewContainer___1d8A_ {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  margin: 0;
+  background-color: #1E2127;
+  padding: 20px;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  /*align-items: center;*/
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.SingleItemView__singleItemListViewList___1jUS7 {
+  font-weight: 500px;
+  font-size: 24px;
+  color: #FFFFFF;
+}
+.PageGridStyle__gridContainer___LJ3RV {
+  display: -webkit-box;
+  display: flex;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: stretch;
+      -ms-flex-align: stretch;
+          align-items: stretch;
+  -ms-flex-line-pack: start;
+      align-content: flex-start;
+}
+
+.PageGridStyle__gridItem___2fcMT {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  width: 33.33333%;
+}
+
+/*# sourceMappingURL=style.css.map*/
