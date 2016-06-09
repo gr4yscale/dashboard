@@ -1,10 +1,13 @@
 import screensConfig from './screens.json'
 
 export default class Screens {
-  constructor(todoist, pinboard, gcal) {
+  // FIXME: beauuuuutiful - REFACTOR
+  constructor(todoist, pinboard, gcal, evernote, gmail) {
     this.todoist = todoist
     this.pinboard = pinboard
     this.gcal = gcal
+    this.evernote = evernote
+    this.gmail = gmail
   }
 
   screens() {
@@ -47,6 +50,9 @@ export default class Screens {
       case 'gcal':
         newData['data'] = this.gcal.eventsThisMonth()
         break
+      case 'gmail':
+        newData['data'] = this.gmail.starredMessages()
+        break
       }
     return newData
   }
@@ -62,6 +68,9 @@ export default class Screens {
         break
       case 'gcal':
         newData['items'] = this.gcal.eventsThisMonth()
+        break
+      case 'gmail':
+        newData['items'] = this.gmail.starredMessages()
         break
       }
     return newData

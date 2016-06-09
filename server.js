@@ -2,7 +2,7 @@
 import dotenv from 'dotenv'
 dotenv.config() // load up environment variables from a .env file (which is gitignored)
 const env = process.env.NODE_ENV
-let syncIntervalMins = (env == 'production') ? 5 : 0.2
+let syncIntervalMins = (env == 'production') ? 5 : 0.5
 
 // authentication
 const passport = require('passport')
@@ -10,18 +10,20 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 const EvernoteStrategy = require('passport-evernote').Strategy
 
 // datasources
-import DataSourceGCal from './src/datasources/gcal'
 import DataSourceTodoist from './src/datasources/todoist'
 import DataSourcePinboard from './src/datasources/pinboard'
+import DataSourceGCal from './src/datasources/gcal'
 import DataSourceEvernote from './src/datasources/evernote'
+import DataSourceGmail from './src/datasources/gmail'
 
 const todoist = new DataSourceTodoist()
 const pinboard = new DataSourcePinboard()
 const gcal = new DataSourceGCal()
 const evernote = new DataSourceEvernote()
+const gmail = new DataSourceGmail()
 
 import Screens from './src/models/screens'
-const screens = new Screens(todoist, pinboard, gcal)
+const screens = new Screens(todoist, pinboard, gcal, evernote, gmail)
 
 // API server
 import path from 'path'
@@ -76,6 +78,8 @@ app.get('/auth/google/callback',
   (req, res) => {
     gcal.setAccessToken(req.user.accessToken)
     gcal.synchronize()
+    gmail.setAccessToken(req.user.accessToken)
+    gmail.synchronize()
     res.redirect('/')
   }
 )
@@ -107,7 +111,7 @@ function setupPassportStrategies() {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: callbackHostName + '/auth/google/callback',
-    scope: ['openid', 'email', 'https://www.googleapis.com/auth/calendar']
+    scope: ['openid', 'email', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/gmail.readonly']
   },
   (accessToken, refreshToken, profile, done) => {
     profile.accessToken = accessToken
@@ -140,8 +144,9 @@ function sync() {
   let p2 = pinboard.synchronize()
   let p3 = gcal.synchronize()
   let p4 = evernote.synchronize()
+  let p5 = gmail.synchronize()
 
-  Promise.all([p1, p2, p3, p4])
+  Promise.all([p1, p2, p3, p4, p5])
   .then(() => {
     console.log('Synced all datasources...')
     io.sockets.emit('synchronized')

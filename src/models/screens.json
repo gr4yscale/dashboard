@@ -177,5 +177,21 @@
     "viewOptions": {
       "maxItems": 10
     }
+  },
+
+
+  {
+    "index" : 4,
+    "description": "Starred Emails",
+    "title": "Starred Emails",
+    "type": "list",
+    "dataSource": "gmail",
+    "dataSourceOptions": {},
+    "viewOptions": {
+      "maxItems": 10
+    }
   }
+
+
+
 ]

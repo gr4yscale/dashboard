@@ -46,6 +46,7 @@
     "gulp": "^3.9.1",
     "json-loader": "^0.5.4",
     "moment": "^2.13.0",
+    "node-gmail-api": "^0.6.0",
     "node-inspector": "^0.12.8",
     "node-pinboard": "^1.0.0",
     "node-todoist": "^0.3.2",
