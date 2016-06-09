@@ -16,7 +16,7 @@ import Routes from './views/common/Routes'
 // Base styling
 import './views/common/base.css'
 
-import { selectScreen } from './redux/actions/screenActions'
+import { selectScreen, nextScreen, togglePause } from './redux/actions/screenActions'
 
 const store = createStore(
   rootReducer,
@@ -41,5 +41,24 @@ document.body.addEventListener('keypress', (event) => {
   if (numberPattern.test(event.key)) {
     let number = parseInt(event.key)
     store.dispatch(selectScreen(number - 1))
+  } else {
+    switch(event.key) {
+      case 'p':
+        store.dispatch(togglePause())
+        break
+    }
   }
 })
+
+// begin auto play...
+
+const next = () => {
+  setTimeout(() => {
+    next()
+  }, 10 * 1000)
+  if (!store.getState().paused) {
+    store.dispatch(nextScreen())
+  }
+}
+
+next()

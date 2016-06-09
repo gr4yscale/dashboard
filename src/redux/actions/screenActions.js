@@ -2,6 +2,9 @@ import { createAction } from 'redux-actions'
 import axios from 'axios'
 
 export const selectScreen = createAction('SELECT_SCREEN')
+export const nextScreen = createAction('NEXT_SCREEN')
+export const previousScreen = createAction('PREVIOUS_SCREEN')
+export const togglePause = createAction('TOGGLE_PAUSE')
 
 const fetchScreensRequest = createAction('FETCH_SCREENS_REQUEST')
 const fetchScreensSuccess = createAction('FETCH_SCREENS_SUCCESS')
