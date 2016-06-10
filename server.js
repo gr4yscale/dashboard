@@ -9,21 +9,23 @@ const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 const EvernoteStrategy = require('passport-evernote').Strategy
 
-// datasources
+// datasources - FIXME REFACTOR these out soon!
 import DataSourceTodoist from './src/datasources/todoist'
 import DataSourcePinboard from './src/datasources/pinboard'
 import DataSourceGCal from './src/datasources/gcal'
 import DataSourceEvernote from './src/datasources/evernote'
 import DataSourceGmail from './src/datasources/gmail'
+import DataSourceRSS from './src/datasources/rss'
 
 const todoist = new DataSourceTodoist()
 const pinboard = new DataSourcePinboard()
 const gcal = new DataSourceGCal()
 const evernote = new DataSourceEvernote()
 const gmail = new DataSourceGmail()
+const github = new DataSourceRSS('https://github.com/timeline')
 
 import Screens from './src/models/screens'
-const screens = new Screens(todoist, pinboard, gcal, evernote, gmail)
+const screens = new Screens(todoist, pinboard, gcal, evernote, gmail, github)
 
 // API server
 import path from 'path'
@@ -145,8 +147,9 @@ function sync() {
   let p3 = gcal.synchronize()
   let p4 = evernote.synchronize()
   let p5 = gmail.synchronize()
+  let p6 = github.synchronize()
 
-  Promise.all([p1, p2, p3, p4, p5])
+  Promise.all([p1, p2, p3, p4, p5, p6])
   .then(() => {
     console.log('Synced all datasources...')
     io.sockets.emit('synchronized')

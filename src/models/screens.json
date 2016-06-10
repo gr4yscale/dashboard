@@ -190,6 +190,18 @@
     "viewOptions": {
       "maxItems": 10
     }
+  },
+
+  {
+    "index" : 5,
+    "description": "Github Public Timeline",
+    "title": "Github Public Timeline",
+    "type": "list",
+    "dataSource": "github",
+    "dataSourceOptions": {},
+    "viewOptions": {
+      "maxItems": 10
+    }
   }
 
 
