@@ -62,52 +62,77 @@ require("source-map-support").install();
 
 	var _dotenv2 = _interopRequireDefault(_dotenv);
 
-	var _path = __webpack_require__(4);
-
-	var _path2 = _interopRequireDefault(_path);
-
-	var _express = __webpack_require__(5);
-
-	var _express2 = _interopRequireDefault(_express);
-
-	var _bodyParser = __webpack_require__(6);
-
-	var _bodyParser2 = _interopRequireDefault(_bodyParser);
-
-	var _screens = __webpack_require__(7);
-
-	var _screens2 = _interopRequireDefault(_screens);
-
-	var _gcal = __webpack_require__(13);
-
-	var _gcal2 = _interopRequireDefault(_gcal);
-
-	var _todoist = __webpack_require__(16);
+	var _todoist = __webpack_require__(4);
 
 	var _todoist2 = _interopRequireDefault(_todoist);
 
-	var _pinboard = __webpack_require__(19);
+	var _pinboard = __webpack_require__(9);
 
 	var _pinboard2 = _interopRequireDefault(_pinboard);
 
+	var _gcal = __webpack_require__(12);
+
+	var _gcal2 = _interopRequireDefault(_gcal);
+
+	var _evernote = __webpack_require__(15);
+
+	var _evernote2 = _interopRequireDefault(_evernote);
+
+	var _gmail = __webpack_require__(17);
+
+	var _gmail2 = _interopRequireDefault(_gmail);
+
+	var _rss = __webpack_require__(36);
+
+	var _rss2 = _interopRequireDefault(_rss);
+
+	var _screens = __webpack_require__(19);
+
+	var _screens2 = _interopRequireDefault(_screens);
+
+	var _path = __webpack_require__(23);
+
+	var _path2 = _interopRequireDefault(_path);
+
+	var _express = __webpack_require__(24);
+
+	var _express2 = _interopRequireDefault(_express);
+
+	var _bodyParser = __webpack_require__(25);
+
+	var _bodyParser2 = _interopRequireDefault(_bodyParser);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var GoogleStrategy = __webpack_require__(22).OAuth2Strategy;
-	var passport = __webpack_require__(23);
-
 	_dotenv2.default.config(); // load up environment variables from a .env file (which is gitignored)
+	// config
 	var env = process.env.NODE_ENV;
-	var syncIntervalMins = env == 'production' ? 5 : 1;
+	var syncIntervalMins = env == 'production' ? 5 : 0.25;
+
+	// authentication
+	var passport = __webpack_require__(26);
+	var GoogleStrategy = __webpack_require__(27).OAuth2Strategy;
+	var EvernoteStrategy = __webpack_require__(28).Strategy;
+
+	// datasources - FIXME REFACTOR these out soon!
+
 
 	var todoist = new _todoist2.default();
 	var pinboard = new _pinboard2.default();
 	var gcal = new _gcal2.default();
-	// TOFIX: refactor this as a ScreensModel, let it contain the screen config json as well
-	var screens = new _screens2.default(todoist, pinboard, gcal);
+	var evernote = new _evernote2.default();
+	var gmail = new _gmail2.default();
+	var github = new _rss2.default('https://github.com/timeline');
+	var creativeai = new _rss2.default('http://www.creativeai.net/feed.xml');
+	var hackernews = new _rss2.default('https://news.ycombinator.com/rss');
+
+	var screens = new _screens2.default(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews);
 
 	// API server
+
+
 	var app = (0, _express2.default)();
-	var session = __webpack_require__(24);
+	var session = __webpack_require__(29);
 	app.use(_bodyParser2.default.urlencoded({
 	  extended: true
 	}));
@@ -146,11 +171,20 @@ require("source-map-support").install();
 	  res.sendFile(_path2.default.resolve(__dirname + basePath + 'style.css.map'));
 	});
 
-	app.get('/authGoogle', passport.authenticate('google', { session: false }));
+	// authentication routes
 
-	app.get('/auth/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), function (req, res) {
+	app.get('/auth/google', passport.authenticate('google', { session: false }));
+	app.get('/auth/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), function (req, res) {
 	  gcal.setAccessToken(req.user.accessToken);
 	  gcal.synchronize();
+	  gmail.setAccessToken(req.user.accessToken);
+	  gmail.synchronize();
+	  res.redirect('/');
+	});
+
+	app.get('/auth/evernote', passport.authenticate('evernote', { session: false }));
+	app.get('/auth/evernote/callback', passport.authenticate('evernote', { session: false, failureRedirect: '/login' }), function (req, res) {
+	  evernote.setAccessToken(req.user.accessToken);
 	  res.redirect('/');
 	});
 
@@ -160,45 +194,58 @@ require("source-map-support").install();
 	  console.log('==> 🌎 Listening at http://%s:%s', host, port);
 	});
 
-	// Google Calendar Authentication - refactor later
+	function setupPassportStrategies() {
+	  var callbackHostName = '';
+	  if (env == 'production') {
+	    callbackHostName = 'http://dashboard.gr4yscale.com:8080';
+	  } else {
+	    callbackHostName = 'http://localhost:3000';
+	  }
 
-	var callbackHostName = '';
-	if (env == 'production') {
-	  callbackHostName = 'http://dashboard.gr4yscale.com:8080';
-	} else {
-	  callbackHostName = 'http://localhost:3000';
+	  passport.use(new GoogleStrategy({
+	    clientID: process.env.GOOGLE_CLIENT_ID,
+	    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+	    callbackURL: callbackHostName + '/auth/google/callback',
+	    scope: ['openid', 'email', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/gmail.readonly']
+	  }, function (accessToken, refreshToken, profile, done) {
+	    profile.accessToken = accessToken;
+	    return done(null, profile);
+	  }));
+
+	  passport.use(new EvernoteStrategy({
+	    requestTokenURL: 'https://sandbox.evernote.com/oauth',
+	    accessTokenURL: 'https://sandbox.evernote.com/oauth',
+	    userAuthorizationURL: 'https://sandbox.evernote.com/OAuth.action',
+	    consumerKey: process.env.EVERNOTE_CONSUMER_KEY,
+	    consumerSecret: process.env.EVERNOTE_CONSUMER_SECRET,
+	    callbackURL: callbackHostName + '/auth/evernote/callback'
+	  }, function (accessToken, tokenSecret, profile, done) {
+	    profile.accessToken = accessToken;
+	    return done(null, profile);
+	  }));
 	}
 
-	passport.use(new GoogleStrategy({
-	  clientID: process.env.GOOGLE_CLIENT_ID,
-	  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-	  // TOFIX: conditionally set the callback URL hostname based on environment
-	  callbackURL: callbackHostName + '/auth/callback',
-	  scope: ['openid', 'email', 'https://www.googleapis.com/auth/calendar']
-	}, function (accessToken, refreshToken, profile, done) {
-	  profile.accessToken = accessToken;
-	  return done(null, profile);
-	}));
-
 	// synchronization
-	var io = __webpack_require__(25)(server);
+	var io = __webpack_require__(30)(server);
 	io.on('connection', function (socket) {
-	  console.log('a socket connection was created');
-	  socket.emit('an event', { some: 'data' });
+	  console.log('A new client opened a socket connection.');
 	});
-
-	// let httpProxy = require('http-proxy')
-	// let proxy = httpProxy.createServer(8080, 'localhost').listen(8081)
 
 	function sync() {
 	  var p1 = todoist.synchronize();
 	  var p2 = pinboard.synchronize();
 	  var p3 = gcal.synchronize();
-	  _promise2.default.all([p1, p2, p3]).then(function () {
+	  var p4 = evernote.synchronize();
+	  var p5 = gmail.synchronize();
+	  var p6 = github.synchronize();
+	  var p7 = creativeai.synchronize();
+	  var p8 = hackernews.synchronize();
+
+	  _promise2.default.all([p1, p2, p3, p4, p5, p6, p7, p8]).then(function () {
 	    console.log('Synced all datasources...');
 	    io.sockets.emit('synchronized');
 	  }).catch(function (err) {
-	    console.log('error!');
+	    console.log('Error during synchronization!');
 	    console.log(err);
 	  });
 	}
@@ -208,6 +255,14 @@ require("source-map-support").install();
 	  sync();
 	}, syncIntervalMins * 60 * 1000);
 
+	// I know this is bad, but I'm a badboy so no care.
+	// Really we should be using domains, but I've got a library raising an error
+	// causing a crash that I don't want to modify for now
+	process.on('uncaughtException', function (err) {
+	  console.log(err);
+	});
+
+	setupPassportStrategies();
 	sync();
 
 /***/ },
@@ -224,368 +279,6 @@ require("source-map-support").install();
 
 /***/ },
 /* 4 */
-/***/ function(module, exports) {
-
-	module.exports = require("path");
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	module.exports = require("express");
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	module.exports = require("body-parser");
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _assign = __webpack_require__(8);
-
-	var _assign2 = _interopRequireDefault(_assign);
-
-	var _getIterator2 = __webpack_require__(9);
-
-	var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-	var _classCallCheck2 = __webpack_require__(10);
-
-	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-	var _createClass2 = __webpack_require__(11);
-
-	var _createClass3 = _interopRequireDefault(_createClass2);
-
-	var _screens = __webpack_require__(12);
-
-	var _screens2 = _interopRequireDefault(_screens);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var Screens = function () {
-	  function Screens(todoist, pinboard, gcal) {
-	    (0, _classCallCheck3.default)(this, Screens);
-
-	    this.todoist = todoist;
-	    this.pinboard = pinboard;
-	    this.gcal = gcal;
-	  }
-
-	  (0, _createClass3.default)(Screens, [{
-	    key: 'screens',
-	    value: function screens() {
-	      var screenItems = [];
-	      var _iteratorNormalCompletion = true;
-	      var _didIteratorError = false;
-	      var _iteratorError = undefined;
-
-	      try {
-	        for (var _iterator = (0, _getIterator3.default)(_screens2.default), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	          var screenItem = _step.value;
-
-	          // FIXME: we're mutating screenItem here and adding it to an array
-	          switch (screenItem.type) {
-	            // handle grid screens
-	            case 'grid':
-	              var gridScreenItems = [];
-	              var _iteratorNormalCompletion2 = true;
-	              var _didIteratorError2 = false;
-	              var _iteratorError2 = undefined;
-
-	              try {
-	                for (var _iterator2 = (0, _getIterator3.default)(screenItem.items), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                  var gridScreenItem = _step2.value;
-
-	                  var _newData = this.dataForItem(gridScreenItem);
-	                  var newGridScreenItem = (0, _assign2.default)({}, gridScreenItem, _newData);
-	                  gridScreenItems.push(newGridScreenItem);
-	                }
-	              } catch (err) {
-	                _didIteratorError2 = true;
-	                _iteratorError2 = err;
-	              } finally {
-	                try {
-	                  if (!_iteratorNormalCompletion2 && _iterator2.return) {
-	                    _iterator2.return();
-	                  }
-	                } finally {
-	                  if (_didIteratorError2) {
-	                    throw _iteratorError2;
-	                  }
-	                }
-	              }
-
-	              screenItem.items = gridScreenItems;
-	              break;
-	            case 'list':
-	              var newData = this.dataForListItem(screenItem);
-	              screenItem = (0, _assign2.default)({}, screenItem, newData);
-	              break;
-	            case 'singleItem':
-	              break;
-	          }
-	          screenItems.push(screenItem);
-	        }
-	      } catch (err) {
-	        _didIteratorError = true;
-	        _iteratorError = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion && _iterator.return) {
-	            _iterator.return();
-	          }
-	        } finally {
-	          if (_didIteratorError) {
-	            throw _iteratorError;
-	          }
-	        }
-	      }
-
-	      return screenItems;
-	    }
-
-	    // FIXME: very obviously in need of a refactor below... no care for now...
-
-	  }, {
-	    key: 'dataForItem',
-	    value: function dataForItem(item) {
-	      var newData = { data: '' };
-	      switch (item.dataSource) {
-	        case 'todoist':
-	          newData['data'] = this.todoist.dataForScreenItem(item);
-	          break;
-	        case 'pinboard':
-	          newData['data'] = this.pinboard.unreadItems();
-	          break;
-	        case 'gcal':
-	          newData['data'] = this.gcal.eventsThisMonth();
-	          break;
-	      }
-	      return newData;
-	    }
-	  }, {
-	    key: 'dataForListItem',
-	    value: function dataForListItem(item) {
-	      var newData = { items: [] };
-	      switch (item.dataSource) {
-	        case 'todoist':
-	          newData['items'] = this.todoist.dataForScreenItem(item);
-	          break;
-	        case 'pinboard':
-	          newData['items'] = this.pinboard.unreadItems();
-	          break;
-	        case 'gcal':
-	          newData['items'] = this.gcal.eventsThisMonth();
-	          break;
-	      }
-	      return newData;
-	    }
-	  }]);
-	  return Screens;
-	}();
-
-	exports.default = Screens;
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	module.exports = require("babel-runtime/core-js/object/assign");
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	module.exports = require("babel-runtime/core-js/get-iterator");
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	module.exports = require("babel-runtime/helpers/classCallCheck");
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	module.exports = require("babel-runtime/helpers/createClass");
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-	module.exports = [
-		{
-			"index": 0,
-			"description": "Main screen",
-			"type": "grid",
-			"items": [
-				{
-					"index": 0,
-					"title": "Inbox",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150709951
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 11
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 1,
-					"title": "Correspondence",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 158490814
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 11
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 2,
-					"title": "Errands / Shopping",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150709955
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 11
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 3,
-					"title": "Calendar",
-					"dataSource": "gcal",
-					"dataSourceOptions": {
-						"project_id": 157472345
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 11
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 4,
-					"title": "Goals, Long Term",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 171123853
-					},
-					"gridScreenView": "singleItem",
-					"viewOptions": {
-						"maxItems": 11
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 5,
-					"title": "Routine Reinforcements",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150714182
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 11
-					},
-					"sort_order": 0
-				}
-			]
-		},
-		{
-			"index": 1,
-			"description": "Secondary",
-			"type": "grid",
-			"items": [
-				{
-					"index": 0,
-					"title": "Study / Uni",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150710059
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 15
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 1,
-					"title": "Projects",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150718495
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 15
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 2,
-					"title": "Unread Articles",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 156908333
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 15
-					},
-					"sort_order": 0
-				}
-			]
-		},
-		{
-			"index": 2,
-			"description": "Yo",
-			"title": "Yo",
-			"type": "list",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 150718495
-			},
-			"viewOptions": {
-				"maxItems": 11
-			}
-		},
-		{
-			"index": 3,
-			"description": "Hey",
-			"title": "Hey",
-			"type": "list",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 150709951
-			},
-			"viewOptions": {
-				"maxItems": 11
-			}
-		}
-	];
-
-/***/ },
-/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -598,21 +291,229 @@ require("source-map-support").install();
 
 	var _promise2 = _interopRequireDefault(_promise);
 
-	var _classCallCheck2 = __webpack_require__(10);
+	var _classCallCheck2 = __webpack_require__(5);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _createClass2 = __webpack_require__(11);
+	var _createClass2 = __webpack_require__(6);
 
 	var _createClass3 = _interopRequireDefault(_createClass2);
 
-	var _moment = __webpack_require__(14);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var todoist = __webpack_require__(7);
+	var unirest = __webpack_require__(8);
+
+	// Login to todoist and store the latest items
+
+	var DataSourceTodoist = function () {
+	  function DataSourceTodoist() {
+	    (0, _classCallCheck3.default)(this, DataSourceTodoist);
+
+	    this.items = [];
+	    // every so often synchronize?
+	  }
+
+	  (0, _createClass3.default)(DataSourceTodoist, [{
+	    key: 'synchronize',
+	    value: function synchronize() {
+	      var _this = this;
+
+	      return new _promise2.default(function (resolve, reject) {
+	        todoist.login({ email: process.env.TODOIST_USERNAME, password: process.env.TODOIST_PASS }, function (err, user) {
+	          if (err) {
+	            console.log(err);
+	            reject(err);
+	          } else {
+	            var apiToken = user.api_token;
+	            var requestOptions = {
+	              token: apiToken,
+	              seq_no: 0,
+	              resource_types: '["items"]'
+	            };
+	            unirest.post('https://todoist.com/API/v6/sync').send(requestOptions).end(function (response) {
+	              _this.items = response.body.Items;
+	              console.log('* Fetched Todoist data');
+	              resolve(response.body.Items);
+	            });
+	          }
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'dataForScreenItem',
+	    value: function dataForScreenItem(screenItem) {
+	      var projectId = screenItem.dataSourceOptions.project_id;
+	      var maxItemCount = screenItem.viewOptions.maxItems;
+
+	      return this.items.filter(function (item) {
+	        return item.project_id === projectId && item.indent === 1;
+	      }).sort(function (a, b) {
+	        return a.item_order - b.item_order;
+	      }).slice(0, maxItemCount).map(function (item) {
+	        return {
+	          datasource_id: item.id,
+	          title: item.content,
+	          subtitle: ''
+	        };
+	      });
+	    }
+	  }]);
+	  return DataSourceTodoist;
+	}();
+
+	exports.default = DataSourceTodoist;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	module.exports = require("babel-runtime/helpers/classCallCheck");
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	module.exports = require("babel-runtime/helpers/createClass");
+
+/***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	module.exports = require("node-todoist");
+
+/***/ },
+/* 8 */
+/***/ function(module, exports) {
+
+	module.exports = require("unirest");
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _values = __webpack_require__(10);
+
+	var _values2 = _interopRequireDefault(_values);
+
+	var _promise = __webpack_require__(2);
+
+	var _promise2 = _interopRequireDefault(_promise);
+
+	var _classCallCheck2 = __webpack_require__(5);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _createClass2 = __webpack_require__(6);
+
+	var _createClass3 = _interopRequireDefault(_createClass2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Pinboard = __webpack_require__(11);
+
+	// const unirest = require('unirest')
+
+	// Login to todoist and store the latest items
+
+	var DataSourcePinboard = function () {
+	  function DataSourcePinboard() {
+	    (0, _classCallCheck3.default)(this, DataSourcePinboard);
+
+	    this.pinboard = new Pinboard(process.env.PINBOARD_API_KEY);
+	    this.data = [];
+	  }
+
+	  (0, _createClass3.default)(DataSourcePinboard, [{
+	    key: 'synchronize',
+	    value: function synchronize() {
+	      var _this = this;
+
+	      return new _promise2.default(function (resolve, reject) {
+	        _this.pinboard.all({}, function (err, res) {
+	          if (err) {
+	            reject(err);
+	          } else {
+	            var data = (0, _values2.default)(res);
+	            console.log('* Fetched Pinboard data');
+	            _this.data = data;
+	            resolve(data);
+	          }
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'formatData',
+	    value: function formatData(data) {
+	      return data.map(function (item) {
+	        return {
+	          id: item.href,
+	          title: item.description,
+	          subtitle: item.url
+	        };
+	      });
+	    }
+	  }, {
+	    key: 'unreadItems',
+	    value: function unreadItems() {
+	      var data = this.data.filter(function (item) {
+	        return item.toread === 'yes';
+	      });
+	      return this.formatData(data);
+	    }
+	  }]);
+	  return DataSourcePinboard;
+	}();
+
+	exports.default = DataSourcePinboard;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	module.exports = require("babel-runtime/core-js/object/values");
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	module.exports = require("node-pinboard");
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _promise = __webpack_require__(2);
+
+	var _promise2 = _interopRequireDefault(_promise);
+
+	var _classCallCheck2 = __webpack_require__(5);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _createClass2 = __webpack_require__(6);
+
+	var _createClass3 = _interopRequireDefault(_createClass2);
+
+	var _moment = __webpack_require__(13);
 
 	var _moment2 = _interopRequireDefault(_moment);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var gcal = __webpack_require__(15);
+	var gcal = __webpack_require__(14);
 
 
 	var PRIMARY_CALENDAR_ID = 'gr4yscale@gmail.com';
@@ -678,19 +579,19 @@ require("source-map-support").install();
 	exports.default = DataSourceGCal;
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports) {
 
 	module.exports = require("moment");
 
 /***/ },
-/* 15 */
+/* 14 */
 /***/ function(module, exports) {
 
 	module.exports = require("google-calendar");
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -703,90 +604,154 @@ require("source-map-support").install();
 
 	var _promise2 = _interopRequireDefault(_promise);
 
-	var _classCallCheck2 = __webpack_require__(10);
+	var _classCallCheck2 = __webpack_require__(5);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _createClass2 = __webpack_require__(11);
+	var _createClass2 = __webpack_require__(6);
 
 	var _createClass3 = _interopRequireDefault(_createClass2);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var todoist = __webpack_require__(17);
-	var unirest = __webpack_require__(18);
+	var Evernote = __webpack_require__(16).Evernote;
 
-	// Login to todoist and store the latest items
+	var DataSourceEvernote = function () {
+	  function DataSourceEvernote() {
+	    (0, _classCallCheck3.default)(this, DataSourceEvernote);
 
-	var DataSourceTodoist = function () {
-	  function DataSourceTodoist() {
-	    (0, _classCallCheck3.default)(this, DataSourceTodoist);
-
-	    this.items = [];
-	    // every so often synchronize?
+	    this.accessToken = '';
+	    this.data = {
+	      scratchpadNoteContent: ''
+	    };
 	  }
 
-	  (0, _createClass3.default)(DataSourceTodoist, [{
+	  (0, _createClass3.default)(DataSourceEvernote, [{
+	    key: 'setAccessToken',
+	    value: function setAccessToken(accessToken) {
+	      this.accessToken = accessToken;
+	    }
+	  }, {
 	    key: 'synchronize',
 	    value: function synchronize() {
 	      var _this = this;
 
+	      console.log('Syncing evernote....');
 	      return new _promise2.default(function (resolve, reject) {
-	        todoist.login({ email: process.env.TODOIST_USERNAME, password: process.env.TODOIST_PASS }, function (err, user) {
+	        _this.client = new Evernote.Client({ token: _this.accessToken });
+	        _this.noteStore = _this.client.getNoteStore();
+
+	        // for now I just care about a few specific notes from evernote, this datasource will just provide convenience to their content
+	        _this.noteStore.getNote(_this.accessToken, 'bbce1a9e-4d1d-4c86-a20a-4ebdba22ed96', true, false, false, false, function (err, note) {
 	          if (err) {
+	            console.log('Evernote datasource encountered an error');
 	            console.log(err);
-	            reject(err);
 	          } else {
-	            var apiToken = user.api_token;
-	            var requestOptions = {
-	              token: apiToken,
-	              seq_no: 0,
-	              resource_types: '["items"]'
-	            };
-	            unirest.post('https://todoist.com/API/v6/sync').send(requestOptions).end(function (response) {
-	              _this.items = response.body.Items;
-	              console.log('* Fetched Todoist data');
-	              resolve(response.body.Items);
-	            });
+	            _this.data['scratchpadNoteContent'] = note.content;
+	            console.log('* Fetched Evernote data');
+	            resolve(_this.data);
 	          }
 	        });
 	      });
 	    }
-	  }, {
-	    key: 'dataForScreenItem',
-	    value: function dataForScreenItem(screenItem) {
-	      var projectId = screenItem.dataSourceOptions.project_id;
-	      var maxItemCount = screenItem.viewOptions.maxItems;
-
-	      return this.items.filter(function (item) {
-	        return item.project_id === projectId && item.indent === 1;
-	      }).sort(function (a, b) {
-	        return a.item_order - b.item_order;
-	      }).slice(0, maxItemCount).map(function (item) {
-	        return {
-	          dataSource_id: item.id,
-	          title: item.content,
-	          subTitle: item.priority
-	        };
-	      });
-	    }
 	  }]);
-	  return DataSourceTodoist;
+	  return DataSourceEvernote;
 	}();
 
-	exports.default = DataSourceTodoist;
+	exports.default = DataSourceEvernote;
+
+/***/ },
+/* 16 */
+/***/ function(module, exports) {
+
+	module.exports = require("evernote");
 
 /***/ },
 /* 17 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	module.exports = require("node-todoist");
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _promise = __webpack_require__(2);
+
+	var _promise2 = _interopRequireDefault(_promise);
+
+	var _classCallCheck2 = __webpack_require__(5);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _createClass2 = __webpack_require__(6);
+
+	var _createClass3 = _interopRequireDefault(_createClass2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Gmail = __webpack_require__(18);
+
+	var DataSourceGmail = function () {
+	  function DataSourceGmail() {
+	    (0, _classCallCheck3.default)(this, DataSourceGmail);
+
+	    this.accessToken = '';
+	    this.data = {
+	      starredMessages: []
+	    };
+	  }
+
+	  (0, _createClass3.default)(DataSourceGmail, [{
+	    key: 'setAccessToken',
+	    value: function setAccessToken(accessToken) {
+	      this.accessToken = accessToken;
+	    }
+	  }, {
+	    key: 'synchronize',
+	    value: function synchronize() {
+	      var _this = this;
+
+	      console.log('Syncing gmail....');
+	      this.data['starredMessages'] = [];
+	      return new _promise2.default(function (resolve, reject) {
+
+	        _this.gmail = new Gmail(_this.accessToken);
+	        _this.messagesStream = _this.gmail.messages('label:starred', { format: 'metadata', max: 25 });
+
+	        _this.messagesStream.on('data', function (data) {
+
+	          //
+	          // GET THE SENDER data
+	          // console.log(data.payload.headers)
+	          // console.log('')
+	          //
+
+	          var sanitizedData = {
+	            datasource_id: data.id,
+	            title: data.snippet,
+	            subtitle: ''
+	          };
+	          _this.data.starredMessages.push(sanitizedData);
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'starredMessages',
+	    value: function starredMessages() {
+	      return this.data.starredMessages;
+	    }
+	  }]);
+	  return DataSourceGmail;
+	}();
+
+	exports.default = DataSourceGmail;
 
 /***/ },
 /* 18 */
 /***/ function(module, exports) {
 
-	module.exports = require("unirest");
+	module.exports = require("node-gmail-api");
 
 /***/ },
 /* 19 */
@@ -798,116 +763,597 @@ require("source-map-support").install();
 	  value: true
 	});
 
-	var _values = __webpack_require__(20);
+	var _assign = __webpack_require__(20);
 
-	var _values2 = _interopRequireDefault(_values);
+	var _assign2 = _interopRequireDefault(_assign);
 
-	var _promise = __webpack_require__(2);
+	var _getIterator2 = __webpack_require__(21);
 
-	var _promise2 = _interopRequireDefault(_promise);
+	var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-	var _classCallCheck2 = __webpack_require__(10);
+	var _classCallCheck2 = __webpack_require__(5);
 
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-	var _createClass2 = __webpack_require__(11);
+	var _createClass2 = __webpack_require__(6);
 
 	var _createClass3 = _interopRequireDefault(_createClass2);
 
+	var _screens = __webpack_require__(22);
+
+	var _screens2 = _interopRequireDefault(_screens);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var Pinboard = __webpack_require__(21);
+	var Screens = function () {
+	  // FIXME: beauuuuutiful - REFACTOR
 
-	// const unirest = require('unirest')
+	  function Screens(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews) {
+	    (0, _classCallCheck3.default)(this, Screens);
 
-	// Login to todoist and store the latest items
-
-	var DataSourcePinboard = function () {
-	  function DataSourcePinboard() {
-	    (0, _classCallCheck3.default)(this, DataSourcePinboard);
-
-	    this.pinboard = new Pinboard(process.env.PINBOARD_API_KEY);
-	    this.data = [];
+	    this.todoist = todoist;
+	    this.pinboard = pinboard;
+	    this.gcal = gcal;
+	    this.evernote = evernote;
+	    this.gmail = gmail;
+	    this.github = github;
+	    this.creativeai = creativeai;
+	    this.hackernews = hackernews;
 	  }
 
-	  (0, _createClass3.default)(DataSourcePinboard, [{
-	    key: 'synchronize',
-	    value: function synchronize() {
-	      var _this = this;
+	  (0, _createClass3.default)(Screens, [{
+	    key: 'screens',
+	    value: function screens() {
+	      var screenItems = [];
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
 
-	      return new _promise2.default(function (resolve, reject) {
-	        _this.pinboard.all({}, function (err, res) {
-	          if (err) {
-	            reject(err);
-	          } else {
-	            var data = (0, _values2.default)(res);
-	            console.log('* Fetched Pinboard data');
-	            _this.data = data;
-	            resolve(data);
+	      try {
+	        for (var _iterator = (0, _getIterator3.default)(_screens2.default), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var screenItem = _step.value;
+
+	          // FIXME: we're mutating screenItem here and adding it to an array
+	          switch (screenItem.type) {
+	            // handle grid screens
+	            case 'grid':
+	              var gridScreenItems = [];
+	              var _iteratorNormalCompletion2 = true;
+	              var _didIteratorError2 = false;
+	              var _iteratorError2 = undefined;
+
+	              try {
+	                for (var _iterator2 = (0, _getIterator3.default)(screenItem.items), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                  var gridScreenItem = _step2.value;
+
+	                  var _newData = this.dataForItem(gridScreenItem);
+	                  var newGridScreenItem = (0, _assign2.default)({}, gridScreenItem, _newData);
+	                  gridScreenItems.push(newGridScreenItem);
+	                }
+	              } catch (err) {
+	                _didIteratorError2 = true;
+	                _iteratorError2 = err;
+	              } finally {
+	                try {
+	                  if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                    _iterator2.return();
+	                  }
+	                } finally {
+	                  if (_didIteratorError2) {
+	                    throw _iteratorError2;
+	                  }
+	                }
+	              }
+
+	              screenItem.items = gridScreenItems;
+	              break;
+	            case 'list':
+	            case 'singleItem':
+	              // for now singleItems get data in an items array to select a single item from
+	              var newData = this.dataForListItem(screenItem);
+	              screenItem = (0, _assign2.default)({}, screenItem, newData);
+	              break;
 	          }
-	        });
-	      });
+	          screenItems.push(screenItem);
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+
+	      return screenItems;
+	    }
+
+	    // FIXME: very obviously in need of a refactor below... no care for now...
+
+	  }, {
+	    key: 'dataForItem',
+	    value: function dataForItem(item) {
+	      var newData = { data: '' };
+	      switch (item.dataSource) {
+	        case 'todoist':
+	          newData['data'] = this.todoist.dataForScreenItem(item);
+	          break;
+	        case 'pinboard':
+	          newData['data'] = this.pinboard.unreadItems();
+	          break;
+	        case 'gcal':
+	          newData['data'] = this.gcal.eventsThisMonth();
+	          break;
+	        case 'gmail':
+	          newData['data'] = this.gmail.starredMessages();
+	          break;
+	        case 'github':
+	          newData['data'] = this.github.items();
+	          break;
+	        case 'creativeai':
+	          newData['data'] = this.creativeai.items();
+	          break;
+	        case 'hackernews':
+	          newData['data'] = this.hackernews.items();
+	          break;
+	      }
+	      return newData;
 	    }
 	  }, {
-	    key: 'formatData',
-	    value: function formatData(data) {
-	      return data.map(function (item) {
-	        return {
-	          id: item.href,
-	          title: item.description,
-	          subtitle: item.url
-	        };
-	      });
-	    }
-	  }, {
-	    key: 'unreadItems',
-	    value: function unreadItems() {
-	      var data = this.data.filter(function (item) {
-	        return item.toread === 'yes';
-	      });
-	      return this.formatData(data);
+	    key: 'dataForListItem',
+	    value: function dataForListItem(item) {
+	      var newData = { items: [] };
+	      switch (item.dataSource) {
+	        case 'todoist':
+	          newData['items'] = this.todoist.dataForScreenItem(item);
+	          break;
+	        case 'pinboard':
+	          newData['items'] = this.pinboard.unreadItems();
+	          break;
+	        case 'gcal':
+	          newData['items'] = this.gcal.eventsThisMonth();
+	          break;
+	        case 'gmail':
+	          newData['items'] = this.gmail.starredMessages();
+	          break;
+	        case 'github':
+	          newData['items'] = this.github.items();
+	          break;
+	        case 'creativeai':
+	          newData['items'] = this.creativeai.items();
+	          break;
+	        case 'hackernews':
+	          newData['items'] = this.hackernews.items();
+	          break;
+	      }
+	      return newData;
 	    }
 	  }]);
-	  return DataSourcePinboard;
+	  return Screens;
 	}();
 
-	exports.default = DataSourcePinboard;
+	exports.default = Screens;
 
 /***/ },
 /* 20 */
 /***/ function(module, exports) {
 
-	module.exports = require("babel-runtime/core-js/object/values");
+	module.exports = require("babel-runtime/core-js/object/assign");
 
 /***/ },
 /* 21 */
 /***/ function(module, exports) {
 
-	module.exports = require("node-pinboard");
+	module.exports = require("babel-runtime/core-js/get-iterator");
 
 /***/ },
 /* 22 */
 /***/ function(module, exports) {
 
-	module.exports = require("passport-google-oauth");
+	module.exports = [
+		{
+			"index": 0,
+			"description": "Main screen",
+			"type": "grid",
+			"items": [
+				{
+					"index": 0,
+					"title": "Inbox",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709951
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 1,
+					"title": "Correspondence",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 158490814
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 2,
+					"title": "Errands / Shopping",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709955
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 3,
+					"title": "Calendar",
+					"dataSource": "gcal",
+					"dataSourceOptions": {
+						"project_id": 157472345
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 4,
+					"title": "Goals, Long Term",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 171123853
+					},
+					"gridScreenView": "singleItem",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 5,
+					"title": "Routine Reinforcements",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150714182
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				}
+			]
+		},
+		{
+			"index": 1,
+			"description": "Secondary",
+			"type": "grid",
+			"items": [
+				{
+					"index": 0,
+					"title": "Study / Uni",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150710059
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 15
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 1,
+					"title": "Projects",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150718495
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 15
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 2,
+					"title": "Unread Articles",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 156908333
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 15
+					},
+					"sort_order": 0
+				}
+			]
+		},
+		{
+			"index": 2,
+			"description": "Yo",
+			"title": "Yo",
+			"type": "grid",
+			"items": [
+				{
+					"index": 0,
+					"title": "Inbox",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709951
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 0,
+					"title": "Inbox",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709951
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				}
+			]
+		},
+		{
+			"index": 3,
+			"description": "Goals, Long Term",
+			"title": "Goals, Long Term",
+			"type": "singleItem",
+			"dataSource": "todoist",
+			"dataSourceOptions": {
+				"project_id": 171123853
+			},
+			"viewOptions": {
+				"maxItems": 10
+			}
+		},
+		{
+			"index": 4,
+			"description": "Starred Emails",
+			"title": "Starred Emails",
+			"type": "list",
+			"dataSource": "gmail",
+			"dataSourceOptions": {},
+			"viewOptions": {
+				"maxItems": 25
+			}
+		},
+		{
+			"index": 5,
+			"description": "Github Public Timeline",
+			"title": "Github Public Timeline",
+			"type": "list",
+			"dataSource": "github",
+			"dataSourceOptions": {},
+			"viewOptions": {
+				"maxItems": 20
+			}
+		},
+		{
+			"index": 5,
+			"description": "CreativeAI",
+			"title": "CreativeAI",
+			"type": "list",
+			"dataSource": "creativeai",
+			"dataSourceOptions": {},
+			"viewOptions": {
+				"maxItems": 20
+			}
+		},
+		{
+			"index": 6,
+			"description": "Hacker News",
+			"title": "Hacker News",
+			"type": "list",
+			"dataSource": "hackernews",
+			"dataSourceOptions": {},
+			"viewOptions": {
+				"maxItems": 20
+			}
+		}
+	];
 
 /***/ },
 /* 23 */
 /***/ function(module, exports) {
 
-	module.exports = require("passport");
+	module.exports = require("path");
 
 /***/ },
 /* 24 */
 /***/ function(module, exports) {
 
-	module.exports = require("express-session");
+	module.exports = require("express");
 
 /***/ },
 /* 25 */
 /***/ function(module, exports) {
 
+	module.exports = require("body-parser");
+
+/***/ },
+/* 26 */
+/***/ function(module, exports) {
+
+	module.exports = require("passport");
+
+/***/ },
+/* 27 */
+/***/ function(module, exports) {
+
+	module.exports = require("passport-google-oauth");
+
+/***/ },
+/* 28 */
+/***/ function(module, exports) {
+
+	module.exports = require("passport-evernote");
+
+/***/ },
+/* 29 */
+/***/ function(module, exports) {
+
+	module.exports = require("express-session");
+
+/***/ },
+/* 30 */
+/***/ function(module, exports) {
+
 	module.exports = require("socket.io");
+
+/***/ },
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */
+/***/ function(module, exports) {
+
+	module.exports = require("feedparser");
+
+/***/ },
+/* 35 */
+/***/ function(module, exports) {
+
+	module.exports = require("request");
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _promise = __webpack_require__(2);
+
+	var _promise2 = _interopRequireDefault(_promise);
+
+	var _classCallCheck2 = __webpack_require__(5);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _createClass2 = __webpack_require__(6);
+
+	var _createClass3 = _interopRequireDefault(_createClass2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var FeedParser = __webpack_require__(34);
+	// unfortunately we must use request instead of promises-based axios because FeedParser wants a stream
+	var request = __webpack_require__(35);
+
+	var DataSourceRSS = function () {
+	  function DataSourceRSS(url, transform) {
+	    (0, _classCallCheck3.default)(this, DataSourceRSS);
+
+	    this.url = url;
+	    this.data = [];
+	    if (transform) {
+	      this.transform = transform;
+	    } else {
+	      this.transform = function (data) {
+	        return {
+	          title: data.title,
+	          subtitle: '',
+	          datasource_id: data.guid,
+	          titleUrl: data.link
+	        };
+	      };
+	    }
+	  }
+
+	  (0, _createClass3.default)(DataSourceRSS, [{
+	    key: 'synchronize',
+	    value: function synchronize() {
+	      var _this = this;
+
+	      console.log('Syncing RSS feed: RSS feed: ' + this.url);
+	      return new _promise2.default(function (resolve, reject) {
+	        var feedparser = new FeedParser();
+	        _this.data = [];
+
+	        var feedParsingComplete = function feedParsingComplete(err) {
+	          if (err) {
+	            console.log('Error parsing RSS feed: ' + _this.url);
+	            console.log(err);
+	            reject(err);
+	          } else {
+	            resolve();
+	          }
+	        };
+
+	        // get a reference to data before 'this' scope is changed with ES5 style syntax
+	        // Using ES5 function syntax on the below callbacks to capture a reference to the feedparser stream
+	        var data = _this.data;
+
+	        // make a stream requesting feed XML and pipe it to FeedParser
+	        request.get(_this.url).on('error', feedParsingComplete).on('response', function (res) {
+	          var stream = this; // request response callback is a stream, feedparser wants a stream
+	          if (res.statusCode != 200) return this.emit('error', new Error('Bad status code'));
+	          stream.pipe(feedparser);
+	        });
+
+	        // hook up stream callbacks
+	        feedparser.on('error', feedParsingComplete);
+	        feedparser.on('end', feedParsingComplete);
+
+	        feedparser.on('readable', function () {
+	          var stream = this;
+	          var meta = this.meta;
+	          var item = void 0;
+
+	          while (item = stream.read()) {
+	            data.push(item);
+	          }
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'items',
+	    value: function items() {
+	      // transform the data on demand - we could transform it on the end callback of the stream so that it is already ready,
+	      // but then there is potential for a race condition without keeping track of "isStreaming" state,
+	      // which I could have done in the amount of time it took to type this comment. DEAL WITH IT, this is plenty fast enough
+	      if (this.url == 'https://news.ycombinator.com/rss') {
+	        console.log(this.data[0]);
+	      }
+	      return this.data.map(this.transform);
+	    }
+	  }]);
+	  return DataSourceRSS;
+	}();
+
+	exports.default = DataSourceRSS;
 
 /***/ }
 /******/ ]);

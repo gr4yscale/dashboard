@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "0b80f69f8c4096fae281"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "90fd893f06926ce97f44"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -656,8 +656,27 @@
 	  if (numberPattern.test(event.key)) {
 	    var number = parseInt(event.key);
 	    store.dispatch((0, _screenActions.selectScreen)(number - 1));
+	  } else {
+	    switch (event.key) {
+	      case 'p':
+	        store.dispatch((0, _screenActions.togglePause)());
+	        break;
+	    }
 	  }
 	});
+
+	// begin auto play...
+
+	var next = function next() {
+	  setTimeout(function () {
+	    next();
+	  }, 10 * 1000);
+	  if (!store.getState().paused) {
+	    store.dispatch((0, _screenActions.nextScreen)());
+	  }
+	};
+
+	next();
 
 /***/ },
 /* 2 */
@@ -36138,7 +36157,8 @@
 
 	var initialState = {
 	  screenIndex: 0,
-	  screens: []
+	  screens: [],
+	  paused: false
 	};
 
 	var rootReducer = function rootReducer() {
@@ -36149,6 +36169,20 @@
 	    case 'SELECT_SCREEN':
 	      return (0, _assign2.default)({}, state, {
 	        screenIndex: action.payload
+	      });
+	    case 'NEXT_SCREEN':
+	      var nextIndex = state.screenIndex + 1;
+	      return (0, _assign2.default)({}, state, {
+	        screenIndex: nextIndex < state.screens.length ? nextIndex : 0
+	      });
+	    case 'PREV_SCREEN':
+	      var prevIndex = state.screenIndex - 1;
+	      return (0, _assign2.default)({}, state, {
+	        screenIndex: prevIndex > 0 ? prevIndex : state.screens.length - 1
+	      });
+	    case 'TOGGLE_PAUSE':
+	      return (0, _assign2.default)({}, state, {
+	        paused: !state.paused
 	      });
 	    case 'FETCH_SCREENS_SUCCESS':
 	      return (0, _assign2.default)({}, state, {
@@ -37999,7 +38033,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.selectScreen = undefined;
+	exports.togglePause = exports.previousScreen = exports.nextScreen = exports.selectScreen = undefined;
 	exports.fetchScreens = fetchScreens;
 
 	var _reduxActions = __webpack_require__(651);
@@ -38011,6 +38045,9 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var selectScreen = exports.selectScreen = (0, _reduxActions.createAction)('SELECT_SCREEN');
+	var nextScreen = exports.nextScreen = (0, _reduxActions.createAction)('NEXT_SCREEN');
+	var previousScreen = exports.previousScreen = (0, _reduxActions.createAction)('PREVIOUS_SCREEN');
+	var togglePause = exports.togglePause = (0, _reduxActions.createAction)('TOGGLE_PAUSE');
 
 	var fetchScreensRequest = (0, _reduxActions.createAction)('FETCH_SCREENS_REQUEST');
 	var fetchScreensSuccess = (0, _reduxActions.createAction)('FETCH_SCREENS_SUCCESS');
@@ -40304,11 +40341,16 @@
 	      }
 	      var gridItems = this.props.items.map(function (data) {
 	        var subtitle = data.subtitle ? data.subtitle : '-';
+	        var title = data.titleUrl ? _react2.default.createElement(
+	          'a',
+	          { href: data.titleUrl },
+	          data.title
+	        ) : data.title;
 	        if (data.subtitle) {
 	          return _react2.default.createElement(
 	            'li',
 	            null,
-	            data.title,
+	            title,
 	            _react2.default.createElement('br', null),
 	            _react2.default.createElement(
 	              'i',
@@ -40320,7 +40362,7 @@
 	          return _react2.default.createElement(
 	            'li',
 	            null,
-	            data.title
+	            title
 	          );
 	        }
 	      });
