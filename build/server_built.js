@@ -733,6 +733,8 @@ require("source-map-support").install();
 	            subtitle: ''
 	          };
 	          _this.data.starredMessages.push(sanitizedData);
+	          console.log('Synced Gmail');
+	          console.log(_this.data.starredMessages);
 	        });
 	      });
 	    }
@@ -1319,7 +1321,7 @@ require("source-map-support").install();
 	      // but then there is potential for a race condition without keeping track of "isStreaming" state,
 	      // which I could have done in the amount of time it took to type this comment. DEAL WITH IT, this is plenty fast enough
 	      if (this.url == 'https://news.ycombinator.com/rss') {
-	        console.log(this.data[0]);
+	        // console.log(this.data[0])
 	      }
 	      return this.data.map(this.transform);
 	    }
