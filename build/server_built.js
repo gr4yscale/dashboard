@@ -1141,7 +1141,7 @@ require("source-map-support").install();
 			"dataSource": "gmail",
 			"dataSourceOptions": {},
 			"viewOptions": {
-				"maxItems": 25
+				"maxItems": 20
 			}
 		},
 		{
