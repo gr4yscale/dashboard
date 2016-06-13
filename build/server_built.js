@@ -107,7 +107,7 @@ require("source-map-support").install();
 	_dotenv2.default.config(); // load up environment variables from a .env file (which is gitignored)
 	// config
 	var env = process.env.NODE_ENV;
-	var syncIntervalMins = env == 'production' ? 5 : 0.25;
+	var syncIntervalMins = env == 'production' ? 5 : 1;
 
 	// authentication
 	var passport = __webpack_require__(26);
