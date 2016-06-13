@@ -1098,7 +1098,7 @@ require("source-map-support").install();
 					"index": 0,
 					"description": "Hacker News",
 					"title": "Hacker News",
-					"type": "list",
+					"gridScreenView": "list",
 					"dataSource": "hackernews",
 					"dataSourceOptions": {},
 					"viewOptions": {
@@ -1109,7 +1109,7 @@ require("source-map-support").install();
 					"index": 1,
 					"description": "Github Public Timeline",
 					"title": "Github Public Timeline",
-					"type": "list",
+					"gridScreenView": "list",
 					"dataSource": "github",
 					"dataSourceOptions": {},
 					"viewOptions": {
