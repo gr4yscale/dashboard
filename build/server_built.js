@@ -1096,29 +1096,25 @@ require("source-map-support").install();
 			"items": [
 				{
 					"index": 0,
-					"title": "Inbox",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150709951
-					},
-					"gridScreenView": "list",
+					"description": "Hacker News",
+					"title": "Hacker News",
+					"type": "list",
+					"dataSource": "hackernews",
+					"dataSourceOptions": {},
 					"viewOptions": {
-						"maxItems": 10
-					},
-					"sort_order": 0
+						"maxItems": 20
+					}
 				},
 				{
-					"index": 0,
-					"title": "Inbox",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150709951
-					},
-					"gridScreenView": "list",
+					"index": 1,
+					"description": "Github Public Timeline",
+					"title": "Github Public Timeline",
+					"type": "list",
+					"dataSource": "github",
+					"dataSourceOptions": {},
 					"viewOptions": {
-						"maxItems": 10
-					},
-					"sort_order": 0
+						"maxItems": 20
+					}
 				}
 			]
 		},
@@ -1148,32 +1144,10 @@ require("source-map-support").install();
 		},
 		{
 			"index": 5,
-			"description": "Github Public Timeline",
-			"title": "Github Public Timeline",
-			"type": "list",
-			"dataSource": "github",
-			"dataSourceOptions": {},
-			"viewOptions": {
-				"maxItems": 20
-			}
-		},
-		{
-			"index": 5,
 			"description": "CreativeAI",
 			"title": "CreativeAI",
 			"type": "list",
 			"dataSource": "creativeai",
-			"dataSourceOptions": {},
-			"viewOptions": {
-				"maxItems": 20
-			}
-		},
-		{
-			"index": 6,
-			"description": "Hacker News",
-			"title": "Hacker News",
-			"type": "list",
-			"dataSource": "hackernews",
 			"dataSourceOptions": {},
 			"viewOptions": {
 				"maxItems": 20
