@@ -14,4 +14,5 @@ COPY public /usr/src/app/public
 
 EXPOSE 8080
 ENV NODE_ENV production
+ENV NODE_PATH /usr/src/app/node_modules
 CMD [ "node", "server.js" ]
