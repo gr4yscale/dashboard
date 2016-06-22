@@ -331,9 +331,11 @@ require("source-map-support").install();
 	              seq_no: 0,
 	              resource_types: '["items"]'
 	            };
+
 	            unirest.post('https://todoist.com/API/v6/sync').send(requestOptions).end(function (response) {
 	              _this.items = response.body.Items;
 	              console.log('* Fetched Todoist data');
+
 	              resolve(response.body.Items);
 	            });
 	          }
@@ -347,7 +349,7 @@ require("source-map-support").install();
 	      var maxItemCount = screenItem.viewOptions.maxItems;
 
 	      return this.items.filter(function (item) {
-	        return item.project_id === projectId && item.indent === 1;
+	        if (item.project_id === 150709951) return item.project_id === projectId && item.indent === 1;else return item.project_id === projectId && item.indent === 1 && item.priority > 1;
 	      }).sort(function (a, b) {
 	        return a.item_order - b.item_order;
 	      }).slice(0, maxItemCount).map(function (item) {
@@ -961,84 +963,43 @@ require("source-map-support").install();
 	module.exports = [
 		{
 			"index": 0,
-			"description": "Main screen",
+			"description": "Primary",
 			"type": "grid",
 			"items": [
 				{
 					"index": 0,
-					"title": "Inbox",
+					"title": "Critical!",
 					"dataSource": "todoist",
 					"dataSourceOptions": {
-						"project_id": 150709951
+						"project_id": 173212883
 					},
 					"gridScreenView": "list",
 					"viewOptions": {
-						"maxItems": 10
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 1,
-					"title": "Correspondence",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 158490814
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 10
+						"maxItems": 15
 					},
 					"sort_order": 0
 				},
 				{
 					"index": 2,
-					"title": "Errands / Shopping",
+					"title": "Work",
 					"dataSource": "todoist",
 					"dataSourceOptions": {
-						"project_id": 150709955
+						"project_id": 150709954
 					},
 					"gridScreenView": "list",
 					"viewOptions": {
-						"maxItems": 10
+						"maxItems": 15
 					},
 					"sort_order": 0
 				},
 				{
-					"index": 3,
+					"index": 1,
 					"title": "Calendar",
 					"dataSource": "gcal",
-					"dataSourceOptions": {
-						"project_id": 157472345
-					},
+					"dataSourceOptions": {},
 					"gridScreenView": "list",
 					"viewOptions": {
-						"maxItems": 10
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 4,
-					"title": "Goals, Long Term",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 171123853
-					},
-					"gridScreenView": "singleItem",
-					"viewOptions": {
-						"maxItems": 10
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 5,
-					"title": "Routine Reinforcements",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150714182
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 10
+						"maxItems": 15
 					},
 					"sort_order": 0
 				}
@@ -1078,10 +1039,8 @@ require("source-map-support").install();
 				{
 					"index": 2,
 					"title": "Unread Articles",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 156908333
-					},
+					"dataSource": "pinboard",
+					"dataSourceOptions": {},
 					"gridScreenView": "list",
 					"viewOptions": {
 						"maxItems": 15
@@ -1119,41 +1078,6 @@ require("source-map-support").install();
 					}
 				}
 			]
-		},
-		{
-			"index": 3,
-			"description": "Goals, Long Term",
-			"title": "Goals, Long Term",
-			"type": "singleItem",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 171123853
-			},
-			"viewOptions": {
-				"maxItems": 10
-			}
-		},
-		{
-			"index": 4,
-			"description": "Starred Emails",
-			"title": "Starred Emails",
-			"type": "list",
-			"dataSource": "gmail",
-			"dataSourceOptions": {},
-			"viewOptions": {
-				"maxItems": 20
-			}
-		},
-		{
-			"index": 5,
-			"description": "CreativeAI",
-			"title": "CreativeAI",
-			"type": "list",
-			"dataSource": "creativeai",
-			"dataSourceOptions": {},
-			"viewOptions": {
-				"maxItems": 20
-			}
 		}
 	];
 
