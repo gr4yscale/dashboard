@@ -963,43 +963,84 @@ require("source-map-support").install();
 	module.exports = [
 		{
 			"index": 0,
-			"description": "Primary",
+			"description": "Main screen",
 			"type": "grid",
 			"items": [
 				{
 					"index": 0,
-					"title": "Critical!",
+					"title": "Inbox",
 					"dataSource": "todoist",
 					"dataSourceOptions": {
-						"project_id": 173212883
+						"project_id": 150709951
 					},
 					"gridScreenView": "list",
 					"viewOptions": {
-						"maxItems": 15
-					},
-					"sort_order": 0
-				},
-				{
-					"index": 2,
-					"title": "Work",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150709954
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 15
+						"maxItems": 10
 					},
 					"sort_order": 0
 				},
 				{
 					"index": 1,
-					"title": "Calendar",
-					"dataSource": "gcal",
-					"dataSourceOptions": {},
+					"title": "Correspondence",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 158490814
+					},
 					"gridScreenView": "list",
 					"viewOptions": {
-						"maxItems": 15
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 2,
+					"title": "Errands / Shopping",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150709955
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 3,
+					"title": "Calendar",
+					"dataSource": "gcal",
+					"dataSourceOptions": {
+						"project_id": 157472345
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 4,
+					"title": "Goals, Long Term",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 171123853
+					},
+					"gridScreenView": "singleItem",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 5,
+					"title": "Routine Reinforcements",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 150714182
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
 					},
 					"sort_order": 0
 				}
@@ -1039,8 +1080,10 @@ require("source-map-support").install();
 				{
 					"index": 2,
 					"title": "Unread Articles",
-					"dataSource": "pinboard",
-					"dataSourceOptions": {},
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 156908333
+					},
 					"gridScreenView": "list",
 					"viewOptions": {
 						"maxItems": 15
@@ -1078,6 +1121,41 @@ require("source-map-support").install();
 					}
 				}
 			]
+		},
+		{
+			"index": 3,
+			"description": "Goals, Long Term",
+			"title": "Goals, Long Term",
+			"type": "singleItem",
+			"dataSource": "todoist",
+			"dataSourceOptions": {
+				"project_id": 171123853
+			},
+			"viewOptions": {
+				"maxItems": 10
+			}
+		},
+		{
+			"index": 4,
+			"description": "Starred Emails",
+			"title": "Starred Emails",
+			"type": "list",
+			"dataSource": "gmail",
+			"dataSourceOptions": {},
+			"viewOptions": {
+				"maxItems": 20
+			}
+		},
+		{
+			"index": 5,
+			"description": "CreativeAI",
+			"title": "CreativeAI",
+			"type": "list",
+			"dataSource": "creativeai",
+			"dataSourceOptions": {},
+			"viewOptions": {
+				"maxItems": 20
+			}
 		}
 	];
 
