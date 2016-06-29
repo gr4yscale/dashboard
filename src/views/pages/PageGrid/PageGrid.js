@@ -26,28 +26,30 @@ class PageGrid extends React.Component {
   }
 
   gridItems() {
-    return this.props.items.map((item, index) => {
+    return this.props.data.map((item, index) => {
       return (<div className={styles.gridItem}>{this.gridItem(index)}</div>)
     })
   }
 
   gridItem(index) {
-    let item = this.props.items[index];
+    let data = this.props.data[index];
+    data = Object.assign({}, data, data.viewOptions)
+
     let props = {
       index,
-      title: item.title,
-      items: item.data,
+      title: data.title,
+      data: data.data,
     }
     // create a ReactElement by giving it the view type (item.gridScreenView) and some props.
     // React will turn this into a ReactComponent for us
-    return ViewFactory(item.gridScreenView, props)
+    return ViewFactory(data.gridScreenView, data)
   }
 }
 
 export default connect(
   (state) => {
     return {
-      items: state.screens[state.screenIndex].items,
+      data: state.screens[state.screenIndex].items,
     }
   }
 )(PageGrid)

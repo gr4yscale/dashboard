@@ -17,7 +17,7 @@ class ScreenSelector extends React.Component {
 
     this.socket = io()
     this.socket.on('synchronized', () => {
-      console.log('* Fetching new data from server')
+      console.log('* Server synced, fetching new data from it now to update the client')
       this.props.fetchScreens()
     })
     this.socket.on('connect', () => {
@@ -29,6 +29,7 @@ class ScreenSelector extends React.Component {
     if (this.props.screens.length > 0) {
       let screen = this.props.screens[this.props.screenIndex]
       let data = screen.data ? screen.data : screen
+      data = Object.assign({}, data, data.viewOptions)
       return (ViewFactory(screen.type, data))
     } else {
       return (<p>its coming</p>)
