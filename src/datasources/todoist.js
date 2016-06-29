@@ -40,16 +40,19 @@ export default class DataSourceTodoist {
 
     return this.items
     .filter((item) => {
-      return item.project_id === projectId && item.indent === 1
+      if (item.project_id === 150709951 || item.project_id === 173212883) // inbox and 'mission critical' don't need priority
+        return (item.project_id === projectId && item.indent === 1)
+      else
+        return (item.project_id === projectId && item.indent === 1 && item.priority > 1)
     })
     .sort((a, b) => {
       return a.item_order - b.item_order
     })
     .slice(0, maxItemCount).map((item) => {
       return {
-        dataSource_id : item.id,
+        datasource_id : item.id,
         title: item.content,
-        subTitle: item.priority
+        subtitle: ''
       }
     })
   }

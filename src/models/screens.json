@@ -45,14 +45,12 @@
       },
       {
         "index": 3,
-        "title": "Calendar",
-        "dataSource": "gcal",
-        "dataSourceOptions": {
-          "project_id": 157472345
-        },
+        "title": "Scratchpad",
+        "dataSource": "evernote",
+        "dataSourceOptions": {},
         "gridScreenView": "list",
         "viewOptions": {
-          "maxItems": 10
+          "maxItems": 20
         },
         "sort_order": 0
       },
@@ -90,10 +88,10 @@
     "type": "grid",
     "items" : [{
         "index": 0,
-        "title": "Study / Uni",
+        "title": "Mission Critical!",
         "dataSource": "todoist",
         "dataSourceOptions": {
-          "project_id": 150710059
+          "project_id": 173212883
         },
         "gridScreenView": "list",
         "viewOptions": {
@@ -116,10 +114,10 @@
       },
       {
         "index": 2,
-        "title": "Unread Articles",
+        "title": "Study / Uni",
         "dataSource": "todoist",
         "dataSourceOptions": {
-          "project_id": 156908333
+          "project_id": 150710059
         },
         "gridScreenView": "list",
         "viewOptions": {
@@ -137,33 +135,28 @@
     "items" : [
       {
         "index": 0,
-        "title": "Inbox",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 150709951
-        },
+        "description": "Hacker News",
+        "title": "Hacker News",
         "gridScreenView": "list",
+        "dataSource": "hackernews",
+        "dataSourceOptions": {},
         "viewOptions": {
-          "maxItems": 10
-        },
-        "sort_order": 0
+          "maxItems": 20
+        }
       },
       {
-        "index": 0,
-        "title": "Inbox",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 150709951
-        },
+        "index": 1,
+        "description": "Github Public Timeline",
+        "title": "Github Public Timeline",
         "gridScreenView": "list",
+        "dataSource": "github",
+        "dataSourceOptions": {},
         "viewOptions": {
-          "maxItems": 10
-        },
-        "sort_order": 0
+          "maxItems": 20
+        }
       }
     ]
   },
-
 
   {
     "index" : 3,
@@ -188,22 +181,18 @@
     "dataSource": "gmail",
     "dataSourceOptions": {},
     "viewOptions": {
-      "maxItems": 10
+      "maxItems": 20
     }
   },
-
   {
     "index" : 5,
-    "description": "Github Public Timeline",
-    "title": "Github Public Timeline",
+    "description": "CreativeAI",
+    "title": "CreativeAI",
     "type": "list",
-    "dataSource": "github",
+    "dataSource": "creativeai",
     "dataSourceOptions": {},
     "viewOptions": {
-      "maxItems": 10
+      "maxItems": 20
     }
   }
-
-
-
 ]

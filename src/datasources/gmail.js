@@ -18,7 +18,7 @@ export default class DataSourceGmail {
     return new Promise((resolve, reject) => {
 
       this.gmail = new Gmail(this.accessToken)
-      this.messagesStream = this.gmail.messages('label:starred', {format: 'metadata', max: 10})
+      this.messagesStream = this.gmail.messages('label:starred', {format: 'metadata', max: 25})
 
       this.messagesStream.on('data', (data) => {
 
