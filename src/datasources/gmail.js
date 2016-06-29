@@ -31,6 +31,8 @@ export default class DataSourceGmail {
           subtitle: ''
         }
         this.data.starredMessages.push(sanitizedData)
+        console.log('Synced Gmail')
+        // console.log(this.data.starredMessages)
       })
     })
   }

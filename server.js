@@ -137,8 +137,7 @@ function setupPassportStrategies() {
 // synchronization
 const io = require('socket.io')(server)
 io.on('connection', (socket) => {
-  console.log('a socket connection was created')
-  socket.emit('an event', { some: 'data' })
+  console.log('A new client opened a socket connection.')
 })
 
 function sync() {
@@ -155,7 +154,7 @@ function sync() {
     io.sockets.emit('synchronized')
   })
   .catch((err) => {
-    console.log('error!')
+    console.log('Error during synchronization!')
     console.log(err)
   })
 }

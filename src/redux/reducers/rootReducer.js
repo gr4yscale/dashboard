@@ -11,7 +11,6 @@ const rootReducer = (state = initialState, action) => {
         screenIndex: action.payload
       })
     case 'NEXT_SCREEN':
-      console.log(state)
       let nextIndex = state.screenIndex + 1;
       return Object.assign({}, state, {
         screenIndex: nextIndex < state.screens.length ? nextIndex : 0
