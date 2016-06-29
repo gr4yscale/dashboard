@@ -23,9 +23,11 @@ const gcal = new DataSourceGCal()
 const evernote = new DataSourceEvernote()
 const gmail = new DataSourceGmail()
 const github = new DataSourceRSS('https://github.com/timeline')
+const creativeai = new DataSourceRSS('http://www.creativeai.net/feed.xml')
+const hackernews = new DataSourceRSS('https://news.ycombinator.com/rss')
 
 import Screens from './src/models/screens'
-const screens = new Screens(todoist, pinboard, gcal, evernote, gmail, github)
+const screens = new Screens(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews)
 
 // API server
 import path from 'path'
@@ -121,9 +123,9 @@ function setupPassportStrategies() {
   }))
 
   passport.use(new EvernoteStrategy({
-    requestTokenURL: 'https://sandbox.evernote.com/oauth',
-    accessTokenURL: 'https://sandbox.evernote.com/oauth',
-    userAuthorizationURL: 'https://sandbox.evernote.com/OAuth.action',
+    requestTokenURL: 'https://www.evernote.com/oauth',
+    accessTokenURL: 'https://www.evernote.com/oauth',
+    userAuthorizationURL: 'https://www.evernote.com/OAuth.action',
     consumerKey: process.env.EVERNOTE_CONSUMER_KEY,
     consumerSecret: process.env.EVERNOTE_CONSUMER_SECRET,
     callbackURL: callbackHostName + '/auth/evernote/callback'
@@ -147,8 +149,10 @@ function sync() {
   let p4 = evernote.synchronize()
   let p5 = gmail.synchronize()
   let p6 = github.synchronize()
+  let p7 = creativeai.synchronize()
+  let p8 = hackernews.synchronize()
 
-  Promise.all([p1, p2, p3, p4, p5, p6])
+  Promise.all([p1, p2, p3, p4, p5, p6, p7, p8])
   .then(() => {
     console.log('Synced all datasources...')
     io.sockets.emit('synchronized')
