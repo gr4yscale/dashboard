@@ -410,12 +410,12 @@ body {
   overflow-x: hidden;
 }
 a {
-  color: #5764c6;
-  text-decoration: underline;
+  color: #AAAAAA;
+  text-decoration: none;
 }
 a:hover,
 a:focus {
-  color: #283176;
+  color: #FFFFFF;
 }
 [disabled],
 .base__disabled___2E9RP {

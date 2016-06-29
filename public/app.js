@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "2900cc144c46b56f0939"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "2ffecbb0ebb455ec1094"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -670,7 +670,7 @@
 	var next = function next() {
 	  setTimeout(function () {
 	    next();
-	  }, 30 * 1000);
+	  }, 1000 * 1000);
 	  if (!store.getState().paused) {
 	    store.dispatch((0, _screenActions.nextScreen)());
 	  }
@@ -37900,6 +37900,10 @@
 
 	var _extends3 = _interopRequireDefault(_extends2);
 
+	var _assign = __webpack_require__(555);
+
+	var _assign2 = _interopRequireDefault(_assign);
+
 	var _getPrototypeOf = __webpack_require__(594);
 
 	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
@@ -37961,7 +37965,7 @@
 
 	      this.socket = io();
 	      this.socket.on('synchronized', function () {
-	        console.log('* Fetching new data from server');
+	        console.log('* Server synced, fetching new data from it now to update the client');
 	        _this2.props.fetchScreens();
 	      });
 	      this.socket.on('connect', function () {
@@ -37973,7 +37977,9 @@
 	    value: function render() {
 	      if (this.props.screens.length > 0) {
 	        var screen = this.props.screens[this.props.screenIndex];
+	        console.log(screen);
 	        var data = screen.data ? screen.data : screen;
+	        data = (0, _assign2.default)({}, data, data.viewOptions);
 	        return (0, _ViewFactory2.default)(screen.type, data);
 	      } else {
 	        return _react2.default.createElement(
@@ -40332,14 +40338,18 @@
 	  (0, _createClass3.default)(ListView, [{
 	    key: 'render',
 	    value: function render() {
-	      if (!this.props.items) {
+	      if (!this.props.data && !this.props.items) {
 	        return _react2.default.createElement(
 	          'li',
 	          null,
 	          'Nothing!'
 	        );
 	      }
-	      var gridItems = this.props.items.map(function (data) {
+
+	      var maxItems = this.props.maxItems ? this.props.maxItems : 10;
+	      var data = this.props.data ? this.props.data : this.props.items;
+
+	      var items = data.slice(0, maxItems).map(function (data) {
 	        var subtitle = data.subtitle ? data.subtitle : '-';
 	        var title = data.titleUrl ? _react2.default.createElement(
 	          'a',
@@ -40377,7 +40387,7 @@
 	        _react2.default.createElement(
 	          'ul',
 	          { className: _ListView2.default.list },
-	          gridItems
+	          items
 	        )
 	      );
 	    }
@@ -40451,15 +40461,16 @@
 	  (0, _createClass3.default)(SingleItemView, [{
 	    key: 'render',
 	    value: function render() {
-	      if (!this.props.items) {
+	      if (!this.props.data) {
 	        return _react2.default.createElement(
 	          'li',
 	          null,
 	          'Nothing!'
 	        );
 	      }
-	      var rand = Math.floor(Math.random() * this.props.items.length);
-	      var data = this.props.items[rand];
+	      var rand = Math.floor(Math.random() * this.props.data.length);
+	      var data = this.props.data[rand];
+
 	      return _react2.default.createElement(
 	        'div',
 	        { className: _SingleItemView2.default.singleItemListViewContainer },
@@ -40492,6 +40503,10 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _assign = __webpack_require__(555);
+
+	var _assign2 = _interopRequireDefault(_assign);
 
 	var _getPrototypeOf = __webpack_require__(594);
 
@@ -40564,7 +40579,7 @@
 	    value: function gridItems() {
 	      var _this2 = this;
 
-	      return this.props.items.map(function (item, index) {
+	      return this.props.data.map(function (item, index) {
 	        return _react2.default.createElement(
 	          'div',
 	          { className: _PageGridStyle2.default.gridItem },
@@ -40575,15 +40590,17 @@
 	  }, {
 	    key: 'gridItem',
 	    value: function gridItem(index) {
-	      var item = this.props.items[index];
+	      var data = this.props.data[index];
+	      data = (0, _assign2.default)({}, data, data.viewOptions);
+
 	      var props = {
 	        index: index,
-	        title: item.title,
-	        items: item.data
+	        title: data.title,
+	        data: data.data
 	      };
 	      // create a ReactElement by giving it the view type (item.gridScreenView) and some props.
 	      // React will turn this into a ReactComponent for us
-	      return (0, _ViewFactory2.default)(item.gridScreenView, props);
+	      return (0, _ViewFactory2.default)(data.gridScreenView, data);
 	    }
 	  }]);
 	  return PageGrid;
@@ -40591,7 +40608,7 @@
 
 	exports.default = (0, _reactRedux.connect)(function (state) {
 	  return {
-	    items: state.screens[state.screenIndex].items
+	    data: state.screens[state.screenIndex].items
 	  };
 	})(PageGrid);
 

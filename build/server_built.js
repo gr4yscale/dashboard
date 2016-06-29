@@ -107,7 +107,7 @@ require("source-map-support").install();
 	_dotenv2.default.config(); // load up environment variables from a .env file (which is gitignored)
 	// config
 	var env = process.env.NODE_ENV;
-	var syncIntervalMins = env == 'production' ? 5 : 1;
+	var syncIntervalMins = env == 'production' ? 5 : 0.1;
 
 	// authentication
 	var passport = __webpack_require__(26);
@@ -125,6 +125,7 @@ require("source-map-support").install();
 	var github = new _rss2.default('https://github.com/timeline');
 	var creativeai = new _rss2.default('http://www.creativeai.net/feed.xml');
 	var hackernews = new _rss2.default('https://news.ycombinator.com/rss');
+	var vox = new _rss2.default('http://www.vox.com/rss/index.xml');
 
 	var screens = new _screens2.default(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews);
 
@@ -213,9 +214,9 @@ require("source-map-support").install();
 	  }));
 
 	  passport.use(new EvernoteStrategy({
-	    requestTokenURL: 'https://sandbox.evernote.com/oauth',
-	    accessTokenURL: 'https://sandbox.evernote.com/oauth',
-	    userAuthorizationURL: 'https://sandbox.evernote.com/OAuth.action',
+	    requestTokenURL: 'https://www.evernote.com/oauth',
+	    accessTokenURL: 'https://www.evernote.com/oauth',
+	    userAuthorizationURL: 'https://www.evernote.com/OAuth.action',
 	    consumerKey: process.env.EVERNOTE_CONSUMER_KEY,
 	    consumerSecret: process.env.EVERNOTE_CONSUMER_SECRET,
 	    callbackURL: callbackHostName + '/auth/evernote/callback'
@@ -331,11 +332,9 @@ require("source-map-support").install();
 	              seq_no: 0,
 	              resource_types: '["items"]'
 	            };
-
 	            unirest.post('https://todoist.com/API/v6/sync').send(requestOptions).end(function (response) {
 	              _this.items = response.body.Items;
 	              console.log('* Fetched Todoist data');
-
 	              resolve(response.body.Items);
 	            });
 	          }
@@ -349,7 +348,8 @@ require("source-map-support").install();
 	      var maxItemCount = screenItem.viewOptions.maxItems;
 
 	      return this.items.filter(function (item) {
-	        if (item.project_id === 150709951) return item.project_id === projectId && item.indent === 1;else return item.project_id === projectId && item.indent === 1 && item.priority > 1;
+	        if (item.project_id === 150709951 || item.project_id === 173212883) // inbox and 'mission critical' don't need priority
+	          return item.project_id === projectId && item.indent === 1;else return item.project_id === projectId && item.indent === 1 && item.priority > 1;
 	      }).sort(function (a, b) {
 	        return a.item_order - b.item_order;
 	      }).slice(0, maxItemCount).map(function (item) {
@@ -617,6 +617,7 @@ require("source-map-support").install();
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var Evernote = __webpack_require__(16).Evernote;
+	var ENML = __webpack_require__(37);
 
 	var DataSourceEvernote = function () {
 	  function DataSourceEvernote() {
@@ -633,6 +634,10 @@ require("source-map-support").install();
 	    value: function setAccessToken(accessToken) {
 	      this.accessToken = accessToken;
 	    }
+
+	    // TOFIX: give this datasource a list of note ids, and make an accessor
+	    // for noteItems by passing in the evernote note guid
+
 	  }, {
 	    key: 'synchronize',
 	    value: function synchronize() {
@@ -640,20 +645,41 @@ require("source-map-support").install();
 
 	      console.log('Syncing evernote....');
 	      return new _promise2.default(function (resolve, reject) {
-	        _this.client = new Evernote.Client({ token: _this.accessToken });
+	        _this.client = new Evernote.Client({ token: _this.accessToken, sandbox: false });
 	        _this.noteStore = _this.client.getNoteStore();
 
 	        // for now I just care about a few specific notes from evernote, this datasource will just provide convenience to their content
-	        _this.noteStore.getNote(_this.accessToken, 'bbce1a9e-4d1d-4c86-a20a-4ebdba22ed96', true, false, false, false, function (err, note) {
+	        _this.noteStore.getNote(_this.accessToken, '79467e95-4a67-4ce2-9fb8-6b6a6f4e70d3', true, false, false, false, function (err, note) {
 	          if (err) {
 	            console.log('Evernote datasource encountered an error');
 	            console.log(err);
 	          } else {
-	            _this.data['scratchpadNoteContent'] = note.content;
-	            console.log('* Fetched Evernote data');
-	            resolve(_this.data);
+	            try {
+	              var plainTextNote = ENML.PlainTextOfENML(note.content);
+	              _this.data['scratchpadNoteContent'] = plainTextNote.split('\n').reverse();
+	              console.log('* Fetched Evernote data');
+	              resolve(_this.data);
+	            } catch (err) {
+	              console.log('* FAILED fetching Evernote data');
+	              reject(err);
+	            }
 	          }
 	        });
+	      });
+	    }
+	  }, {
+	    key: 'scratchPadNote',
+	    value: function scratchPadNote(screenItem) {
+	      if (!this.data['scratchpadNoteContent']) return;
+
+	      var maxItemCount = screenItem.viewOptions.maxItems;
+
+	      return this.data['scratchpadNoteContent'].slice(0, maxItemCount).map(function (line) {
+	        return {
+	          datasource_id: 'yo',
+	          title: line,
+	          subtitle: ''
+	        };
 	      });
 	    }
 	  }]);
@@ -722,21 +748,12 @@ require("source-map-support").install();
 	        _this.messagesStream = _this.gmail.messages('label:starred', { format: 'metadata', max: 25 });
 
 	        _this.messagesStream.on('data', function (data) {
-
-	          //
-	          // GET THE SENDER data
-	          // console.log(data.payload.headers)
-	          // console.log('')
-	          //
-
 	          var sanitizedData = {
 	            datasource_id: data.id,
 	            title: data.snippet,
 	            subtitle: ''
 	          };
 	          _this.data.starredMessages.push(sanitizedData);
-	          console.log('Synced Gmail');
-	          console.log(_this.data.starredMessages);
 	        });
 	      });
 	    }
@@ -883,6 +900,7 @@ require("source-map-support").install();
 	  }, {
 	    key: 'dataForItem',
 	    value: function dataForItem(item) {
+	      // console.log(item)
 	      var newData = { data: '' };
 	      switch (item.dataSource) {
 	        case 'todoist':
@@ -906,12 +924,16 @@ require("source-map-support").install();
 	        case 'hackernews':
 	          newData['data'] = this.hackernews.items();
 	          break;
+	        case 'evernote':
+	          newData['data'] = this.evernote.scratchPadNote(item);
+	          break;
 	      }
 	      return newData;
 	    }
 	  }, {
 	    key: 'dataForListItem',
 	    value: function dataForListItem(item) {
+	      // console.log(item)
 	      var newData = { items: [] };
 	      switch (item.dataSource) {
 	        case 'todoist':
@@ -930,10 +952,16 @@ require("source-map-support").install();
 	          newData['items'] = this.github.items();
 	          break;
 	        case 'creativeai':
-	          newData['items'] = this.creativeai.items();
-	          break;
+	          {
+	            console.log(this.creativeai.items());
+	            newData['items'] = this.creativeai.items();
+	            break;
+	          }
 	        case 'hackernews':
 	          newData['items'] = this.hackernews.items();
+	          break;
+	        case 'evernote':
+	          newData['items'] = this.evernote.scratchPadNote(item);
 	          break;
 	      }
 	      return newData;
@@ -968,6 +996,19 @@ require("source-map-support").install();
 			"items": [
 				{
 					"index": 0,
+					"title": "Mission Critical",
+					"dataSource": "todoist",
+					"dataSourceOptions": {
+						"project_id": 173212883
+					},
+					"gridScreenView": "list",
+					"viewOptions": {
+						"maxItems": 10
+					},
+					"sort_order": 0
+				},
+				{
+					"index": 1,
 					"title": "Inbox",
 					"dataSource": "todoist",
 					"dataSourceOptions": {
@@ -980,12 +1021,10 @@ require("source-map-support").install();
 					"sort_order": 0
 				},
 				{
-					"index": 1,
-					"title": "Correspondence",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 158490814
-					},
+					"index": 2,
+					"title": "Scratchpad",
+					"dataSource": "evernote",
+					"dataSourceOptions": {},
 					"gridScreenView": "list",
 					"viewOptions": {
 						"maxItems": 10
@@ -993,7 +1032,7 @@ require("source-map-support").install();
 					"sort_order": 0
 				},
 				{
-					"index": 2,
+					"index": 3,
 					"title": "Errands / Shopping",
 					"dataSource": "todoist",
 					"dataSourceOptions": {
@@ -1006,26 +1045,13 @@ require("source-map-support").install();
 					"sort_order": 0
 				},
 				{
-					"index": 3,
-					"title": "Calendar",
-					"dataSource": "gcal",
-					"dataSourceOptions": {
-						"project_id": 157472345
-					},
-					"gridScreenView": "list",
-					"viewOptions": {
-						"maxItems": 10
-					},
-					"sort_order": 0
-				},
-				{
 					"index": 4,
-					"title": "Goals, Long Term",
+					"title": "Correspondence",
 					"dataSource": "todoist",
 					"dataSourceOptions": {
-						"project_id": 171123853
+						"project_id": 158490814
 					},
-					"gridScreenView": "singleItem",
+					"gridScreenView": "list",
 					"viewOptions": {
 						"maxItems": 10
 					},
@@ -1053,17 +1079,86 @@ require("source-map-support").install();
 			"items": [
 				{
 					"index": 0,
-					"title": "Study / Uni",
-					"dataSource": "todoist",
-					"dataSourceOptions": {
-						"project_id": 150710059
-					},
+					"description": "Calendar",
+					"title": "Calendar",
 					"gridScreenView": "list",
+					"dataSource": "gcal",
+					"dataSourceOptions": {},
 					"viewOptions": {
-						"maxItems": 15
-					},
-					"sort_order": 0
+						"maxItems": 10
+					}
 				},
+				{
+					"index": 1,
+					"description": "Starred Emails",
+					"title": "Starred Emails",
+					"gridScreenView": "list",
+					"dataSource": "gmail",
+					"dataSourceOptions": {},
+					"viewOptions": {
+						"maxItems": 10
+					}
+				},
+				{
+					"index": 2,
+					"description": "Pinboard Unread",
+					"title": "Pinboard Unread",
+					"gridScreenView": "list",
+					"dataSource": "pinboard",
+					"dataSourceOptions": {},
+					"viewOptions": {
+						"maxItems": 10
+					}
+				}
+			]
+		},
+		{
+			"index": 2,
+			"description": "Three",
+			"title": "Three",
+			"type": "grid",
+			"items": [
+				{
+					"index": 0,
+					"description": "CreativeAI",
+					"title": "CreativeAI",
+					"gridScreenView": "list",
+					"dataSource": "creativeai",
+					"dataSourceOptions": {},
+					"viewOptions": {
+						"maxItems": 10
+					}
+				},
+				{
+					"index": 1,
+					"description": "Hacker News",
+					"title": "Hacker News",
+					"gridScreenView": "list",
+					"dataSource": "hackernews",
+					"dataSourceOptions": {},
+					"viewOptions": {
+						"maxItems": 10
+					}
+				},
+				{
+					"index": 2,
+					"description": "Github Public Timeline",
+					"title": "Github Public Timeline",
+					"gridScreenView": "list",
+					"dataSource": "github",
+					"dataSourceOptions": {},
+					"viewOptions": {
+						"maxItems": 10
+					}
+				}
+			]
+		},
+		{
+			"index": 3,
+			"description": "Four",
+			"title": "Four",
+			"type": "grid",
+			"items": [
 				{
 					"index": 1,
 					"title": "Projects",
@@ -1079,10 +1174,10 @@ require("source-map-support").install();
 				},
 				{
 					"index": 2,
-					"title": "Unread Articles",
+					"title": "Study / Uni",
 					"dataSource": "todoist",
 					"dataSourceOptions": {
-						"project_id": 156908333
+						"project_id": 150710059
 					},
 					"gridScreenView": "list",
 					"viewOptions": {
@@ -1091,71 +1186,6 @@ require("source-map-support").install();
 					"sort_order": 0
 				}
 			]
-		},
-		{
-			"index": 2,
-			"description": "Yo",
-			"title": "Yo",
-			"type": "grid",
-			"items": [
-				{
-					"index": 0,
-					"description": "Hacker News",
-					"title": "Hacker News",
-					"gridScreenView": "list",
-					"dataSource": "hackernews",
-					"dataSourceOptions": {},
-					"viewOptions": {
-						"maxItems": 20
-					}
-				},
-				{
-					"index": 1,
-					"description": "Github Public Timeline",
-					"title": "Github Public Timeline",
-					"gridScreenView": "list",
-					"dataSource": "github",
-					"dataSourceOptions": {},
-					"viewOptions": {
-						"maxItems": 20
-					}
-				}
-			]
-		},
-		{
-			"index": 3,
-			"description": "Goals, Long Term",
-			"title": "Goals, Long Term",
-			"type": "singleItem",
-			"dataSource": "todoist",
-			"dataSourceOptions": {
-				"project_id": 171123853
-			},
-			"viewOptions": {
-				"maxItems": 10
-			}
-		},
-		{
-			"index": 4,
-			"description": "Starred Emails",
-			"title": "Starred Emails",
-			"type": "list",
-			"dataSource": "gmail",
-			"dataSourceOptions": {},
-			"viewOptions": {
-				"maxItems": 20
-			}
-		},
-		{
-			"index": 5,
-			"description": "CreativeAI",
-			"title": "CreativeAI",
-			"type": "list",
-			"dataSource": "creativeai",
-			"dataSourceOptions": {},
-			"viewOptions": {
-				"maxItems": 20
-			}
 		}
 	];
 
@@ -1322,9 +1352,6 @@ require("source-map-support").install();
 	      // transform the data on demand - we could transform it on the end callback of the stream so that it is already ready,
 	      // but then there is potential for a race condition without keeping track of "isStreaming" state,
 	      // which I could have done in the amount of time it took to type this comment. DEAL WITH IT, this is plenty fast enough
-	      if (this.url == 'https://news.ycombinator.com/rss') {
-	        // console.log(this.data[0])
-	      }
 	      return this.data.map(this.transform);
 	    }
 	  }]);
@@ -1332,6 +1359,12 @@ require("source-map-support").install();
 	}();
 
 	exports.default = DataSourceRSS;
+
+/***/ },
+/* 37 */
+/***/ function(module, exports) {
+
+	module.exports = require("enml-js");
 
 /***/ }
 /******/ ]);
