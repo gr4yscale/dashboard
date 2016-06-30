@@ -177,15 +177,15 @@ require("source-map-support").install();
 	app.get('/auth/google', passport.authenticate('google', { session: false }));
 	app.get('/auth/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), function (req, res) {
 	  gcal.setAccessToken(req.user.accessToken);
-	  gcal.synchronize();
 	  gmail.setAccessToken(req.user.accessToken);
-	  gmail.synchronize();
+	  sync();
 	  res.redirect('/');
 	});
 
 	app.get('/auth/evernote', passport.authenticate('evernote', { session: false }));
 	app.get('/auth/evernote/callback', passport.authenticate('evernote', { session: false, failureRedirect: '/login' }), function (req, res) {
 	  evernote.setAccessToken(req.user.accessToken);
+	  sync();
 	  res.redirect('/');
 	});
 
@@ -755,6 +755,7 @@ require("source-map-support").install();
 	          };
 	          _this.data.starredMessages.push(sanitizedData);
 	        });
+	        resolve(_this.data);
 	      });
 	    }
 	  }, {
