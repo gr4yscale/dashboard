@@ -168,5 +168,13 @@ setInterval(() => {
   sync()
 }, syncIntervalMins * 60 * 1000)
 
+// TOFIX TO FIX TOFIX !!!
+// I know this is bad, but I'm a badboy so no care.
+// Really we should be using domains, but I've got a library raising an error
+// causing a crash that I don't want to modify for now
+process.on('uncaughtException', (err) => {
+  console.log(err)
+})
+
 setupPassportStrategies()
 sync()
