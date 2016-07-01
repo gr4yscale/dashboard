@@ -81,9 +81,8 @@ app.get('/auth/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: '/login' }),
   (req, res) => {
     gcal.setAccessToken(req.user.accessToken)
-    gcal.synchronize()
     gmail.setAccessToken(req.user.accessToken)
-    gmail.synchronize()
+    sync()
     res.redirect('/')
   }
 )
@@ -93,6 +92,7 @@ app.get('/auth/evernote/callback',
   passport.authenticate('evernote', { session: false, failureRedirect: '/login' }),
   (req, res) => {
     evernote.setAccessToken(req.user.accessToken)
+    sync()
     res.redirect('/')
   }
 )

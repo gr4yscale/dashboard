@@ -21,19 +21,15 @@ export default class DataSourceGmail {
       this.messagesStream = this.gmail.messages('label:starred', {format: 'metadata', max: 25})
 
       this.messagesStream.on('data', (data) => {
-
-        console.log(data.payload.headers)
-        console.log('')
-
         let sanitizedData = {
           datasource_id: data.id,
           title: data.snippet,
           subtitle: ''
         }
         this.data.starredMessages.push(sanitizedData)
-        console.log('Synced Gmail')
-        // console.log(this.data.starredMessages)
       })
+      // TOFIX: this is a hack. messages are streamed in so Promises (like the rest of the datasources use) are awkward here
+      resolve(this.data)
     })
   }
 
