@@ -14,7 +14,8 @@ export default class DataSourceRSS {
           title: data.title,
           subtitle: '',
           datasource_id: data.guid,
-          titleUrl: data.link
+          titleUrl: data.link,
+          description: data.description
         }
       }
     }

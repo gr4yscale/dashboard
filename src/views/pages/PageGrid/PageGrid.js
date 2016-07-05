@@ -34,12 +34,6 @@ class PageGrid extends React.Component {
   gridItem(index) {
     let data = this.props.data[index];
     data = Object.assign({}, data, data.viewOptions)
-
-    let props = {
-      index,
-      title: data.title,
-      data: data.data,
-    }
     // create a ReactElement by giving it the view type (item.gridScreenView) and some props.
     // React will turn this into a ReactComponent for us
     return ViewFactory(data.gridScreenView, data)

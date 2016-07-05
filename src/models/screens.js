@@ -92,9 +92,11 @@ export default class Screens {
       case 'github':
         newData['items'] = this.github.items()
         break
-      case 'creativeai':
+      case 'creativeai': {
+        console.log(this.creativeai.items())
         newData['items'] = this.creativeai.items()
         break
+      }
       case 'hackernews':
         newData['items'] = this.hackernews.items()
         break

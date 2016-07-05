@@ -24,7 +24,7 @@ const evernote = new DataSourceEvernote()
 const gmail = new DataSourceGmail()
 const github = new DataSourceRSS('https://github.com/timeline')
 const creativeai = new DataSourceRSS('http://www.creativeai.net/feed.xml')
-const hackernews = new DataSourceRSS('https://news.ycombinator.com/rss')
+const hackernews = new DataSourceRSS('http://hnapp.com/rss?q=score%3E' + 10)
 
 import Screens from './src/models/screens'
 const screens = new Screens(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews)
