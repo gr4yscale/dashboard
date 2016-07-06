@@ -2,7 +2,7 @@ import screensConfig from './screens.json'
 
 export default class Screens {
   // FIXME: beauuuuutiful - REFACTOR
-  constructor(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews) {
+  constructor(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews, pocket) {
     this.todoist = todoist
     this.pinboard = pinboard
     this.gcal = gcal
@@ -11,6 +11,7 @@ export default class Screens {
     this.github = github
     this.creativeai = creativeai
     this.hackernews = hackernews
+    this.pocket = pocket
   }
 
   screens() {
@@ -69,6 +70,9 @@ export default class Screens {
       case 'evernote':
         newData['data'] = this.evernote.scratchPadNote(item)
         break
+      case 'pocket':
+        newData['data'] = this.pocket.favoritedItems()
+        break
       }
     return newData
   }
@@ -102,6 +106,9 @@ export default class Screens {
         break
       case 'evernote':
         newData['items'] = this.evernote.scratchPadNote(item)
+        break
+      case 'pocket':
+        newData['items'] = this.pocket.favoritedItems()
         break
       }
     return newData

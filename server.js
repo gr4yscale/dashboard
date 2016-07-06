@@ -8,6 +8,7 @@ let syncIntervalMins = (env == 'production') ? 5 : 0.5
 const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 const EvernoteStrategy = require('passport-evernote').Strategy
+const PocketStrategy = require('passport-pocket')
 
 // datasources - FIXME REFACTOR these out soon!
 import DataSourceTodoist from './src/datasources/todoist'
@@ -16,6 +17,7 @@ import DataSourceGCal from './src/datasources/gcal'
 import DataSourceEvernote from './src/datasources/evernote'
 import DataSourceGmail from './src/datasources/gmail'
 import DataSourceRSS from './src/datasources/rss'
+import DataSourcePocket from './src/datasources/pocket'
 
 const todoist = new DataSourceTodoist()
 const pinboard = new DataSourcePinboard()
@@ -25,9 +27,11 @@ const gmail = new DataSourceGmail()
 const github = new DataSourceRSS('https://github.com/timeline')
 const creativeai = new DataSourceRSS('http://www.creativeai.net/feed.xml')
 const hackernews = new DataSourceRSS('http://hnapp.com/rss?q=score%3E' + 10)
+const vox = new DataSourceRSS('http://www.vox.com/rss/index.xml')
+const pocket = new DataSourcePocket()
 
 import Screens from './src/models/screens'
-const screens = new Screens(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews)
+const screens = new Screens(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews, pocket)
 
 // API server
 import path from 'path'
@@ -97,6 +101,16 @@ app.get('/auth/evernote/callback',
   }
 )
 
+app.get('/auth/pocket', passport.authenticate('pocket', { session: false } ))
+app.get('/auth/pocket/callback',
+  passport.authenticate('pocket', { session: false, failureRedirect: '/login' }),
+  (req, res) => {
+    pocket.setAccessToken(req.user.accessToken)
+    sync()
+    res.redirect('/')
+  }
+)
+
 const server = app.listen(process.env.PORT || 8080, () => {
   const host = server.address().address;
   const port = server.address().port;
@@ -134,6 +148,18 @@ function setupPassportStrategies() {
     profile.accessToken = accessToken
     return done(null, profile)
   }))
+
+  passport.use(new PocketStrategy({
+    consumerKey: process.env.POCKET_CONSUMER_KEY,
+    callbackURL: callbackHostName + '/auth/pocket/callback'
+  },
+  (username, accessToken, done) => {
+      return done(null, {
+          username : username,
+          accessToken : accessToken
+      })
+    })
+  )
 }
 
 // synchronization
@@ -151,8 +177,9 @@ function sync() {
   let p6 = github.synchronize()
   let p7 = creativeai.synchronize()
   let p8 = hackernews.synchronize()
+  let p9 = pocket.synchronize()
 
-  Promise.all([p1, p2, p3, p4, p5, p6, p7, p8])
+  Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9])
   .then(() => {
     console.log('Synced all datasources...')
     io.sockets.emit('synchronized')
@@ -173,7 +200,7 @@ setInterval(() => {
 // Really we should be using domains, but I've got a library raising an error
 // causing a crash that I don't want to modify for now
 process.on('uncaughtException', (err) => {
-  console.log(err)
+  console.log(err);
 })
 
 setupPassportStrategies()
