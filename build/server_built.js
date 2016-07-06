@@ -86,6 +86,10 @@ require("source-map-support").install();
 
 	var _rss2 = _interopRequireDefault(_rss);
 
+	var _pocket = __webpack_require__(39);
+
+	var _pocket2 = _interopRequireDefault(_pocket);
+
 	var _screens = __webpack_require__(19);
 
 	var _screens2 = _interopRequireDefault(_screens);
@@ -107,12 +111,13 @@ require("source-map-support").install();
 	_dotenv2.default.config(); // load up environment variables from a .env file (which is gitignored)
 	// config
 	var env = process.env.NODE_ENV;
-	var syncIntervalMins = env == 'production' ? 5 : 0.1;
+	var syncIntervalMins = env == 'production' ? 5 : 0.2;
 
 	// authentication
 	var passport = __webpack_require__(26);
 	var GoogleStrategy = __webpack_require__(27).OAuth2Strategy;
 	var EvernoteStrategy = __webpack_require__(28).Strategy;
+	var PocketStrategy = __webpack_require__(40);
 
 	// datasources - FIXME REFACTOR these out soon!
 
@@ -124,10 +129,11 @@ require("source-map-support").install();
 	var gmail = new _gmail2.default();
 	var github = new _rss2.default('https://github.com/timeline');
 	var creativeai = new _rss2.default('http://www.creativeai.net/feed.xml');
-	var hackernews = new _rss2.default('https://news.ycombinator.com/rss');
+	var hackernews = new _rss2.default('http://hnapp.com/rss?q=score%3E' + 10);
 	var vox = new _rss2.default('http://www.vox.com/rss/index.xml');
+	var pocket = new _pocket2.default();
 
-	var screens = new _screens2.default(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews);
+	var screens = new _screens2.default(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews, pocket);
 
 	// API server
 
@@ -189,6 +195,13 @@ require("source-map-support").install();
 	  res.redirect('/');
 	});
 
+	app.get('/auth/pocket', passport.authenticate('pocket', { session: false }));
+	app.get('/auth/pocket/callback', passport.authenticate('pocket', { session: false, failureRedirect: '/login' }), function (req, res) {
+	  pocket.setAccessToken(req.user.accessToken);
+	  sync();
+	  res.redirect('/');
+	});
+
 	var server = app.listen(process.env.PORT || 8080, function () {
 	  var host = server.address().address;
 	  var port = server.address().port;
@@ -224,6 +237,16 @@ require("source-map-support").install();
 	    profile.accessToken = accessToken;
 	    return done(null, profile);
 	  }));
+
+	  passport.use(new PocketStrategy({
+	    consumerKey: process.env.POCKET_CONSUMER_KEY,
+	    callbackURL: callbackHostName + '/auth/pocket/callback'
+	  }, function (username, accessToken, done) {
+	    return done(null, {
+	      username: username,
+	      accessToken: accessToken
+	    });
+	  }));
 	}
 
 	// synchronization
@@ -241,8 +264,9 @@ require("source-map-support").install();
 	  var p6 = github.synchronize();
 	  var p7 = creativeai.synchronize();
 	  var p8 = hackernews.synchronize();
+	  var p9 = pocket.synchronize();
 
-	  _promise2.default.all([p1, p2, p3, p4, p5, p6, p7, p8]).then(function () {
+	  _promise2.default.all([p1, p2, p3, p4, p5, p6, p7, p8, p9]).then(function () {
 	    console.log('Synced all datasources...');
 	    io.sockets.emit('synchronized');
 	  }).catch(function (err) {
@@ -256,6 +280,7 @@ require("source-map-support").install();
 	  sync();
 	}, syncIntervalMins * 60 * 1000);
 
+	// TOFIX TO FIX TOFIX !!!
 	// I know this is bad, but I'm a badboy so no care.
 	// Really we should be using domains, but I've got a library raising an error
 	// causing a crash that I don't want to modify for now
@@ -755,6 +780,7 @@ require("source-map-support").install();
 	          };
 	          _this.data.starredMessages.push(sanitizedData);
 	        });
+	        // TOFIX: this is a hack. messages are streamed in so Promises (like the rest of the datasources use) are awkward here
 	        resolve(_this.data);
 	      });
 	    }
@@ -810,7 +836,7 @@ require("source-map-support").install();
 	var Screens = function () {
 	  // FIXME: beauuuuutiful - REFACTOR
 
-	  function Screens(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews) {
+	  function Screens(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews, pocket) {
 	    (0, _classCallCheck3.default)(this, Screens);
 
 	    this.todoist = todoist;
@@ -821,6 +847,7 @@ require("source-map-support").install();
 	    this.github = github;
 	    this.creativeai = creativeai;
 	    this.hackernews = hackernews;
+	    this.pocket = pocket;
 	  }
 
 	  (0, _createClass3.default)(Screens, [{
@@ -928,6 +955,9 @@ require("source-map-support").install();
 	        case 'evernote':
 	          newData['data'] = this.evernote.scratchPadNote(item);
 	          break;
+	        case 'pocket':
+	          newData['data'] = this.pocket.favoritedItems();
+	          break;
 	      }
 	      return newData;
 	    }
@@ -963,6 +993,9 @@ require("source-map-support").install();
 	          break;
 	        case 'evernote':
 	          newData['items'] = this.evernote.scratchPadNote(item);
+	          break;
+	        case 'pocket':
+	          newData['items'] = this.pocket.favoritedItems();
 	          break;
 	      }
 	      return newData;
@@ -1086,7 +1119,7 @@ require("source-map-support").install();
 					"dataSource": "gcal",
 					"dataSourceOptions": {},
 					"viewOptions": {
-						"maxItems": 10
+						"maxItems": 15
 					}
 				},
 				{
@@ -1097,18 +1130,18 @@ require("source-map-support").install();
 					"dataSource": "gmail",
 					"dataSourceOptions": {},
 					"viewOptions": {
-						"maxItems": 10
+						"maxItems": 15
 					}
 				},
 				{
 					"index": 2,
-					"description": "Pinboard Unread",
-					"title": "Pinboard Unread",
+					"description": "Pocket Favorites",
+					"title": "Pocket Favorites",
 					"gridScreenView": "list",
-					"dataSource": "pinboard",
+					"dataSource": "pocket",
 					"dataSourceOptions": {},
 					"viewOptions": {
-						"maxItems": 10
+						"maxItems": 15
 					}
 				}
 			]
@@ -1138,7 +1171,7 @@ require("source-map-support").install();
 					"dataSource": "hackernews",
 					"dataSourceOptions": {},
 					"viewOptions": {
-						"maxItems": 10
+						"maxItems": 14
 					}
 				},
 				{
@@ -1149,7 +1182,7 @@ require("source-map-support").install();
 					"dataSource": "github",
 					"dataSourceOptions": {},
 					"viewOptions": {
-						"maxItems": 10
+						"maxItems": 20
 					}
 				}
 			]
@@ -1175,7 +1208,7 @@ require("source-map-support").install();
 				},
 				{
 					"index": 2,
-					"title": "Study / Uni",
+					"title": "Learning",
 					"dataSource": "todoist",
 					"dataSourceOptions": {
 						"project_id": 150710059
@@ -1295,7 +1328,8 @@ require("source-map-support").install();
 	          title: data.title,
 	          subtitle: '',
 	          datasource_id: data.guid,
-	          titleUrl: data.link
+	          titleUrl: data.link,
+	          description: data.description
 	        };
 	      };
 	    }
@@ -1366,6 +1400,106 @@ require("source-map-support").install();
 /***/ function(module, exports) {
 
 	module.exports = require("enml-js");
+
+/***/ },
+/* 38 */,
+/* 39 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _promise = __webpack_require__(2);
+
+	var _promise2 = _interopRequireDefault(_promise);
+
+	var _classCallCheck2 = __webpack_require__(5);
+
+	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+	var _createClass2 = __webpack_require__(6);
+
+	var _createClass3 = _interopRequireDefault(_createClass2);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var unirest = __webpack_require__(8);
+
+	var DataSourcePocket = function () {
+	  function DataSourcePocket() {
+	    (0, _classCallCheck3.default)(this, DataSourcePocket);
+
+	    this.data = [];
+	    this.accessToken = '';
+	  }
+
+	  (0, _createClass3.default)(DataSourcePocket, [{
+	    key: 'setAccessToken',
+	    value: function setAccessToken(accessToken) {
+	      this.accessToken = accessToken;
+	    }
+
+	    // get favorite items only for now
+
+	  }, {
+	    key: 'synchronize',
+	    value: function synchronize() {
+	      var _this = this;
+
+	      console.log('Syncing pocket');
+	      return new _promise2.default(function (resolve, reject) {
+	        var requestOptions = {
+	          consumer_key: process.env.POCKET_CONSUMER_KEY,
+	          access_token: _this.accessToken,
+	          favorite: 1
+	        };
+	        unirest.post('https://getpocket.com/v3/get').send(requestOptions).end(function (response) {
+	          _this.data = [];
+	          var data = response.body.list;
+	          if (data) {
+	            for (var key in data) {
+	              if (data.hasOwnProperty(key)) {
+	                _this.data.push(data[key]);
+	              }
+	            }
+	          }
+	          resolve(_this.data);
+	        });
+	      });
+	    }
+	  }, {
+	    key: 'formatData',
+	    value: function formatData(data) {
+	      return data.map(function (item) {
+	        return {
+	          id: item.item_id,
+	          title: item.resolved_title,
+	          titleUrl: item.resolved_url,
+	          subtitle: item.resolved_url
+	        };
+	      });
+	    }
+	  }, {
+	    key: 'favoritedItems',
+	    value: function favoritedItems() {
+	      if (this.data) {
+	        return this.formatData(this.data);
+	      }
+	    }
+	  }]);
+	  return DataSourcePocket;
+	}();
+
+	exports.default = DataSourcePocket;
+
+/***/ },
+/* 40 */
+/***/ function(module, exports) {
+
+	module.exports = require("passport-pocket");
 
 /***/ }
 /******/ ]);

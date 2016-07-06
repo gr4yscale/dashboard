@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "09f36da582ca39ec3d75"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "df800beb7ca0b7053490"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -37977,7 +37977,6 @@
 	    value: function render() {
 	      if (this.props.screens.length > 0) {
 	        var screen = this.props.screens[this.props.screenIndex];
-	        console.log(screen);
 	        var data = screen.data ? screen.data : screen;
 	        data = (0, _assign2.default)({}, data, data.viewOptions);
 	        return (0, _ViewFactory2.default)(screen.type, data);
@@ -40297,6 +40296,10 @@
 	  value: true
 	});
 
+	var _assign = __webpack_require__(555);
+
+	var _assign2 = _interopRequireDefault(_assign);
+
 	var _getPrototypeOf = __webpack_require__(594);
 
 	var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
@@ -40327,6 +40330,8 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	// TOFIX: refactor soon if we begin handling too many datasource case-specific things here; this should be generic
+
 	var ListView = function (_React$Component) {
 	  (0, _inherits3.default)(ListView, _React$Component);
 
@@ -40336,8 +40341,65 @@
 	  }
 
 	  (0, _createClass3.default)(ListView, [{
+	    key: 'renderStandardItem',
+	    value: function renderStandardItem(data) {
+	      var title = data.titleUrl ? _react2.default.createElement(
+	        'a',
+	        { href: data.titleUrl },
+	        data.title
+	      ) : data.title;
+	      var subtitle = data.subtitle ? data.subtitle : '-';
+	      if (data.subtitle) {
+	        return _react2.default.createElement(
+	          'li',
+	          null,
+	          title,
+	          _react2.default.createElement('br', null),
+	          _react2.default.createElement(
+	            'i',
+	            null,
+	            data.subtitle
+	          )
+	        );
+	      } else {
+	        return _react2.default.createElement(
+	          'li',
+	          null,
+	          title
+	        );
+	      }
+	    }
+	  }, {
+	    key: 'renderHNItem',
+	    value: function renderHNItem(data) {
+	      var description = data.description ? data.description : '-';
+	      var ptsCountText = description.substring(3, description.indexOf(','));
+	      var commentsStartIndex = description.indexOf('">') + 2;
+	      var commentsEndIndex = description.indexOf('</');
+	      var commentsText = description.substring(commentsStartIndex, commentsEndIndex);
+	      var hnText = ptsCountText + '  |  ' + commentsText;
+	      var sanitisedData = (0, _assign2.default)({}, data, { title: data.title.substring(data.title.indexOf(';') + 2) });
+
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        this.renderStandardItem(sanitisedData),
+	        _react2.default.createElement(
+	          'p',
+	          { style: { fontSize: 12 } },
+	          _react2.default.createElement(
+	            'i',
+	            null,
+	            hnText
+	          )
+	        )
+	      );
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var _this2 = this;
+
 	      if (!this.props.data && !this.props.items) {
 	        return _react2.default.createElement(
 	          'li',
@@ -40349,33 +40411,16 @@
 	      var maxItems = this.props.maxItems ? this.props.maxItems : 10;
 	      var data = this.props.data ? this.props.data : this.props.items;
 
+	      // build up array of react elements
 	      var items = data.slice(0, maxItems).map(function (data) {
-	        var subtitle = data.subtitle ? data.subtitle : '-';
-	        var title = data.titleUrl ? _react2.default.createElement(
-	          'a',
-	          { href: data.titleUrl },
-	          data.title
-	        ) : data.title;
-	        if (data.subtitle) {
-	          return _react2.default.createElement(
-	            'li',
-	            null,
-	            title,
-	            _react2.default.createElement('br', null),
-	            _react2.default.createElement(
-	              'i',
-	              null,
-	              data.subtitle
-	            )
-	          );
-	        } else {
-	          return _react2.default.createElement(
-	            'li',
-	            null,
-	            title
-	          );
+	        switch (_this2.props.dataSource) {
+	          case 'hackernews':
+	            return _this2.renderHNItem(data);
+	          default:
+	            return _this2.renderStandardItem(data);
 	        }
 	      });
+
 	      return _react2.default.createElement(
 	        'div',
 	        { className: _ListView2.default.listViewContainer },
@@ -40391,12 +40436,6 @@
 	        )
 	      );
 	    }
-
-	    // proptypes.........
-	    // items[] <- item.title, item.subTitle, item.sort_order, item.id
-	    // title
-	    // ???????
-
 	  }]);
 	  return ListView;
 	}(_react2.default.Component);
@@ -40592,12 +40631,6 @@
 	    value: function gridItem(index) {
 	      var data = this.props.data[index];
 	      data = (0, _assign2.default)({}, data, data.viewOptions);
-
-	      var props = {
-	        index: index,
-	        title: data.title,
-	        data: data.data
-	      };
 	      // create a ReactElement by giving it the view type (item.gridScreenView) and some props.
 	      // React will turn this into a ReactComponent for us
 	      return (0, _ViewFactory2.default)(data.gridScreenView, data);
