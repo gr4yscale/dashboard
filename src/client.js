@@ -55,7 +55,7 @@ document.body.addEventListener('keypress', (event) => {
 const next = () => {
   setTimeout(() => {
     next()
-  }, 10 * 1000)
+  }, 15 * 1000)
   if (!store.getState().paused) {
     store.dispatch(nextScreen())
   }

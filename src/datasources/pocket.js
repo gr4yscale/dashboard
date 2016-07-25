@@ -32,7 +32,6 @@ export default class DataSourcePocket {
             }
           }
         }
-        console.log(this.data[0])
         resolve(this.data)
       })
     })
@@ -40,6 +39,9 @@ export default class DataSourcePocket {
 
   formatData(data) {
     return data
+    .sort((a, b) => {
+      return parseInt(a.time_favorited) < parseInt(b.time_favorited)
+    })
     .map((item) => {
       return {
         id: item.item_id,

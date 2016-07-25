@@ -32,7 +32,7 @@ class ScreenSelector extends React.Component {
       data = Object.assign({}, data, data.viewOptions)
       return (ViewFactory(screen.type, data))
     } else {
-      return (<p>its coming</p>)
+      return (<p>DATA IS COMING</p>)
     }
   }
 }

@@ -6,6 +6,19 @@
     "items" : [
       {
         "index": 0,
+        "title": "Mission Critical",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 173212883
+        },
+        "gridScreenView": "list",
+        "viewOptions": {
+          "maxItems": 10
+        },
+        "sort_order": 0
+      },
+      {
+        "index": 1,
         "title": "Inbox",
         "dataSource": "todoist",
         "dataSourceOptions": {
@@ -18,12 +31,10 @@
         "sort_order": 0
       },
       {
-        "index": 1,
-        "title": "Correspondence",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 158490814
-        },
+        "index": 2,
+        "title": "Scratchpad",
+        "dataSource": "evernote",
+        "dataSourceOptions": {},
         "gridScreenView": "list",
         "viewOptions": {
           "maxItems": 10
@@ -31,7 +42,7 @@
         "sort_order": 0
       },
       {
-        "index": 2,
+        "index": 3,
         "title": "Errands / Shopping",
         "dataSource": "todoist",
         "dataSourceOptions": {
@@ -44,24 +55,13 @@
         "sort_order": 0
       },
       {
-        "index": 3,
-        "title": "Scratchpad",
-        "dataSource": "evernote",
-        "dataSourceOptions": {},
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 20
-        },
-        "sort_order": 0
-      },
-      {
         "index": 4,
-        "title": "Goals, Long Term",
+        "title": "Correspondence",
         "dataSource": "todoist",
         "dataSourceOptions": {
-          "project_id": 171123853
+          "project_id": 158490814
         },
-        "gridScreenView": "singleItem",
+        "gridScreenView": "list",
         "viewOptions": {
           "maxItems": 10
         },
@@ -69,14 +69,14 @@
       },
       {
         "index": 5,
-        "title": "Routine Reinforcements",
+        "title": "Reminders",
         "dataSource": "todoist",
         "dataSourceOptions": {
-          "project_id": 150714182
+          "project_id": 171391303
         },
         "gridScreenView": "list",
         "viewOptions": {
-          "maxItems": 10
+          "maxItems": 15
         },
         "sort_order": 0
       }]
@@ -86,19 +86,90 @@
     "index" : 1,
     "description" : "Secondary",
     "type": "grid",
-    "items" : [{
+    "items" : [
+      {
         "index": 0,
-        "title": "Mission Critical!",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 173212883
-        },
+        "description": "Calendar",
+        "title": "Calendar",
         "gridScreenView": "list",
+        "dataSource": "gcal",
+        "dataSourceOptions": {},
         "viewOptions": {
           "maxItems": 15
-        },
-        "sort_order": 0
+        }
       },
+      {
+        "index": 1,
+        "description": "Starred Emails",
+        "title": "Starred Emails",
+        "gridScreenView": "list",
+        "dataSource": "gmail",
+        "dataSourceOptions": {},
+        "viewOptions": {
+          "maxItems": 15
+        }
+      },
+      {
+        "index": 2,
+        "description": "Pocket Favorites",
+        "title": "Pocket Favorites",
+        "gridScreenView": "list",
+        "dataSource": "pocket",
+        "dataSourceOptions": {},
+        "viewOptions": {
+          "maxItems": 15
+        }
+      }]
+  },
+
+  {
+    "index" : 2,
+    "description" : "Three",
+    "title" : "Three",
+    "type": "grid",
+    "items" : [
+      {
+        "index": 0,
+        "description": "CreativeAI",
+        "title": "CreativeAI",
+        "gridScreenView": "list",
+        "dataSource": "creativeai",
+        "dataSourceOptions": {},
+        "viewOptions": {
+          "maxItems": 10
+        }
+      },
+      {
+        "index": 1,
+        "description": "Hacker News",
+        "title": "Hacker News",
+        "gridScreenView": "list",
+        "dataSource": "hackernews",
+        "dataSourceOptions": {},
+        "viewOptions": {
+          "maxItems": 14
+        }
+      },
+      {
+        "index": 2,
+        "description": "Github",
+        "title": "Github",
+        "gridScreenView": "list",
+        "dataSource": "github",
+        "dataSourceOptions": {},
+        "viewOptions": {
+          "maxItems": 20
+        }
+      }
+    ]
+  },
+
+  {
+    "index" : 3,
+    "description" : "Four",
+    "title" : "Four",
+    "type": "grid",
+    "items" : [
       {
         "index": 1,
         "title": "Projects",
@@ -114,7 +185,7 @@
       },
       {
         "index": 2,
-        "title": "Study / Uni",
+        "title": "Learning",
         "dataSource": "todoist",
         "dataSourceOptions": {
           "project_id": 150710059
@@ -124,75 +195,7 @@
           "maxItems": 15
         },
         "sort_order": 0
-      }]
-  },
-
-  {
-    "index" : 2,
-    "description" : "Yo",
-    "title" : "Yo",
-    "type": "grid",
-    "items" : [
-      {
-        "index": 0,
-        "description": "Hacker News",
-        "title": "Hacker News",
-        "gridScreenView": "list",
-        "dataSource": "hackernews",
-        "dataSourceOptions": {},
-        "viewOptions": {
-          "maxItems": 20
-        }
-      },
-      {
-        "index": 1,
-        "description": "Github Public Timeline",
-        "title": "Github Public Timeline",
-        "gridScreenView": "list",
-        "dataSource": "github",
-        "dataSourceOptions": {},
-        "viewOptions": {
-          "maxItems": 20
-        }
       }
     ]
-  },
-
-  {
-    "index" : 3,
-    "description": "Goals, Long Term",
-    "title": "Goals, Long Term",
-    "type": "singleItem",
-    "dataSource": "todoist",
-    "dataSourceOptions": {
-      "project_id": 171123853
-    },
-    "viewOptions": {
-      "maxItems": 10
-    }
-  },
-
-
-  {
-    "index" : 4,
-    "description": "Starred Emails",
-    "title": "Starred Emails",
-    "type": "list",
-    "dataSource": "gmail",
-    "dataSourceOptions": {},
-    "viewOptions": {
-      "maxItems": 20
-    }
-  },
-  {
-    "index" : 5,
-    "description": "CreativeAI",
-    "title": "CreativeAI",
-    "type": "list",
-    "dataSource": "creativeai",
-    "dataSourceOptions": {},
-    "viewOptions": {
-      "maxItems": 20
-    }
   }
 ]

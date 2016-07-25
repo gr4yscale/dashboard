@@ -25,7 +25,6 @@ export default class DataSourceRSS {
     console.log(`Syncing RSS feed: RSS feed: ${this.url}`)
     return new Promise((resolve, reject) => {
       let feedparser = new FeedParser()
-      this.data = []
 
       let feedParsingComplete = (err) => {
         if (err) {

@@ -15,7 +15,7 @@ export default class DataSourceEvernote {
 
   // TOFIX: give this datasource a list of note ids, and make an accessor
   // for noteItems by passing in the evernote note guid
-  
+
   synchronize() {
     console.log('Syncing evernote....')
     return new Promise((resolve, reject) => {
@@ -25,8 +25,9 @@ export default class DataSourceEvernote {
       // for now I just care about a few specific notes from evernote, this datasource will just provide convenience to their content
       this.noteStore.getNote(this.accessToken, '79467e95-4a67-4ce2-9fb8-6b6a6f4e70d3', true, false, false, false, (err, note) => {
         if (err) {
-          console.log('Evernote datasource encountered an error')
+          console.log('Evernote datasource encountered an error: ' + err)
           console.log(err)
+          reject(err)
         } else {
           try {
             let plainTextNote = ENML.PlainTextOfENML(note.content)

@@ -2,7 +2,7 @@
 import dotenv from 'dotenv'
 dotenv.config() // load up environment variables from a .env file (which is gitignored)
 const env = process.env.NODE_ENV
-let syncIntervalMins = (env == 'production') ? 5 : 0.5
+let syncIntervalMins = (env == 'production') ? 5 : 1
 
 // authentication
 const passport = require('passport')
@@ -26,7 +26,7 @@ const evernote = new DataSourceEvernote()
 const gmail = new DataSourceGmail()
 const github = new DataSourceRSS('https://github.com/timeline')
 const creativeai = new DataSourceRSS('http://www.creativeai.net/feed.xml')
-const hackernews = new DataSourceRSS('http://hnapp.com/rss?q=score%3E' + 10)
+const hackernews = new DataSourceRSS('http://news.ycombinator.com/rss')
 const vox = new DataSourceRSS('http://www.vox.com/rss/index.xml')
 const pocket = new DataSourcePocket()
 

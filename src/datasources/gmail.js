@@ -14,7 +14,6 @@ export default class DataSourceGmail {
 
   synchronize() {
     console.log('Syncing gmail....')
-    this.data['starredMessages'] = []
     return new Promise((resolve, reject) => {
 
       this.gmail = new Gmail(this.accessToken)

@@ -44,12 +44,12 @@ export default class ListView extends React.Component {
     // build up array of react elements
     let items = data.slice(0, maxItems)
     .map((data) => {
-      switch (this.props.dataSource) {
-        case 'hackernews':
-          return this.renderHNItem(data)
-        default:
+      // switch (this.props.dataSource) {
+        // case 'hackernews':
+          // return this.renderHNItem(data)
+        // default:
           return this.renderStandardItem(data)
-      }
+      // }
     })
 
     return (
