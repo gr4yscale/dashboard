@@ -2,41 +2,41 @@ require("source-map-support").install();
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-/******/
+
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-/******/
+
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-/******/
+
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
 /******/ 			id: moduleId,
 /******/ 			loaded: false
 /******/ 		};
-/******/
+
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
+
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/
+
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/
-/******/
+
+
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-/******/
+
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-/******/
+
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-/******/
+
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
 /******/ })
@@ -53,72 +53,72 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	var _dotenv = __webpack_require__(3);
-	
+
 	var _dotenv2 = _interopRequireDefault(_dotenv);
-	
+
 	var _todoist = __webpack_require__(4);
-	
+
 	var _todoist2 = _interopRequireDefault(_todoist);
-	
+
 	var _pinboard = __webpack_require__(9);
-	
+
 	var _pinboard2 = _interopRequireDefault(_pinboard);
-	
+
 	var _gcal = __webpack_require__(12);
-	
+
 	var _gcal2 = _interopRequireDefault(_gcal);
-	
+
 	var _evernote = __webpack_require__(15);
-	
+
 	var _evernote2 = _interopRequireDefault(_evernote);
-	
+
 	var _gmail = __webpack_require__(17);
-	
+
 	var _gmail2 = _interopRequireDefault(_gmail);
-	
+
 	var _rss = __webpack_require__(36);
-	
+
 	var _rss2 = _interopRequireDefault(_rss);
-	
+
 	var _pocket = __webpack_require__(39);
-	
+
 	var _pocket2 = _interopRequireDefault(_pocket);
-	
+
 	var _screens = __webpack_require__(19);
-	
+
 	var _screens2 = _interopRequireDefault(_screens);
-	
+
 	var _path = __webpack_require__(23);
-	
+
 	var _path2 = _interopRequireDefault(_path);
-	
+
 	var _express = __webpack_require__(24);
-	
+
 	var _express2 = _interopRequireDefault(_express);
-	
+
 	var _bodyParser = __webpack_require__(25);
-	
+
 	var _bodyParser2 = _interopRequireDefault(_bodyParser);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	_dotenv2.default.config(); // load up environment variables from a .env file (which is gitignored)
 	// config
 	var env = process.env.NODE_ENV;
 	var syncIntervalMins = env == 'production' ? 5 : 1;
-	
+
 	// authentication
 	var passport = __webpack_require__(26);
 	var GoogleStrategy = __webpack_require__(27).OAuth2Strategy;
 	var EvernoteStrategy = __webpack_require__(28).Strategy;
 	var PocketStrategy = __webpack_require__(40);
 	var TodoistStrategy = __webpack_require__(41).Strategy;
-	
+
 	// datasources - FIXME REFACTOR these out soon!
-	
-	
+
+
 	var todoist = new _todoist2.default();
 	var pinboard = new _pinboard2.default();
 	var gcal = new _gcal2.default();
@@ -129,12 +129,12 @@ require("source-map-support").install();
 	var hackernews = new _rss2.default('http://news.ycombinator.com/rss');
 	var vox = new _rss2.default('http://www.vox.com/rss/index.xml');
 	var pocket = new _pocket2.default();
-	
+
 	var screens = new _screens2.default(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews, pocket);
-	
+
 	// API server
-	
-	
+
+
 	var app = (0, _express2.default)();
 	var session = __webpack_require__(29);
 	app.use(_bodyParser2.default.urlencoded({
@@ -143,40 +143,40 @@ require("source-map-support").install();
 	app.use(_bodyParser2.default.json());
 	app.use(session({ secret: 'yeauhhhhh', resave: true, saveUninitialized: true }));
 	app.use(passport.initialize());
-	
+
 	var basePath = '';
 	if (env == 'production') {
 	  basePath = '/public/';
 	} else {
 	  basePath = '/../src/static/';
 	}
-	
+
 	app.get('/screens', function (req, res) {
 	  res.send(screens.screens());
 	});
-	
+
 	app.get('/', function (req, res) {
 	  res.sendFile(_path2.default.resolve(__dirname + basePath + 'index.html'));
 	});
-	
+
 	app.get('/app.js', function (req, res) {
 	  res.sendFile(_path2.default.resolve(__dirname + basePath + 'app.js'));
 	});
-	
+
 	app.get('/app.js.map', function (req, res) {
 	  res.sendFile(_path2.default.resolve(__dirname + basePath + 'app.js.map'));
 	});
-	
+
 	app.get('/style.css', function (req, res) {
 	  res.sendFile(_path2.default.resolve(__dirname + basePath + 'style.css'));
 	});
-	
+
 	app.get('/style.css.map', function (req, res) {
 	  res.sendFile(_path2.default.resolve(__dirname + basePath + 'style.css.map'));
 	});
-	
+
 	// authentication routes
-	
+
 	app.get('/auth/google', passport.authenticate('google', { session: false }));
 	app.get('/auth/google/callback', passport.authenticate('google', { session: false, failureRedirect: '/login' }), function (req, res) {
 	  gcal.setAccessToken(req.user.accessToken);
@@ -184,39 +184,39 @@ require("source-map-support").install();
 	  sync();
 	  res.redirect('/');
 	});
-	
+
 	app.get('/auth/evernote', passport.authenticate('evernote', { session: false }));
 	app.get('/auth/evernote/callback', passport.authenticate('evernote', { session: false, failureRedirect: '/login' }), function (req, res) {
 	  evernote.setAccessToken(req.user.accessToken);
 	  sync();
 	  res.redirect('/');
 	});
-	
+
 	app.get('/auth/pocket', passport.authenticate('pocket', { session: false }));
 	app.get('/auth/pocket/callback', passport.authenticate('pocket', { session: false, failureRedirect: '/login' }), function (req, res) {
 	  pocket.setAccessToken(req.user.accessToken);
 	  sync();
 	  res.redirect('/');
 	});
-	
+
 	app.get('/auth/todoist', passport.authenticate('todoist', { scope: 'data:read_write' }));
 	app.get('/auth/todoist/callback', passport.authenticate('todoist', { successRedirect: '/', failureRedirect: '/login' }), function (req, res) {
 	  console.log('req:');
 	  console.log(req);
 	  console.log('res:');
 	  console.log(res);
-	
+
 	  todoist.accessToken = req.accessToken;
 	  sync();
 	  res.redirect('/');
 	});
-	
+
 	var server = app.listen(process.env.PORT || 8080, function () {
 	  var host = server.address().address;
 	  var port = server.address().port;
 	  console.log('==> 🌎 Listening at http://%s:%s', host, port);
 	});
-	
+
 	function setupPassportStrategies() {
 	  var callbackHostName = '';
 	  if (env == 'production') {
@@ -224,7 +224,7 @@ require("source-map-support").install();
 	  } else {
 	    callbackHostName = 'http://localhost:3000';
 	  }
-	
+
 	  passport.use(new GoogleStrategy({
 	    clientID: process.env.GOOGLE_CLIENT_ID,
 	    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -234,7 +234,7 @@ require("source-map-support").install();
 	    profile.accessToken = accessToken;
 	    return done(null, profile);
 	  }));
-	
+
 	  passport.use(new EvernoteStrategy({
 	    requestTokenURL: 'https://www.evernote.com/oauth',
 	    accessTokenURL: 'https://www.evernote.com/oauth',
@@ -246,7 +246,7 @@ require("source-map-support").install();
 	    profile.accessToken = accessToken;
 	    return done(null, profile);
 	  }));
-	
+
 	  passport.use(new PocketStrategy({
 	    consumerKey: process.env.POCKET_CONSUMER_KEY,
 	    callbackURL: callbackHostName + '/auth/pocket/callback'
@@ -256,7 +256,7 @@ require("source-map-support").install();
 	      accessToken: accessToken
 	    });
 	  }));
-	
+
 	  passport.use(new TodoistStrategy({
 	    clientID: process.env.TODOIST_CLIENT_ID,
 	    clientSecret: process.env.TODOIST_CLIENT_SECRET,
@@ -267,7 +267,7 @@ require("source-map-support").install();
 	    todoist.accessToken = accessToken;
 	  }));
 	}
-	
+
 	function sync() {
 	  // TOFIX: do a Promise.all([]) but make sure to still emit for the client to update even if we catch an error
 	  todoist.synchronize();
@@ -280,16 +280,16 @@ require("source-map-support").install();
 	  hackernews.synchronize();
 	  pocket.synchronize();
 	}
-	
+
 	setInterval(function () {
 	  console.log('Syncing datasources...');
 	  sync();
 	}, syncIntervalMins * 60 * 1000);
-	
+
 	setInterval(function () {
 	  io.sockets.emit('synchronized');
 	}, 30 * 1000); // every 30 seconds tell the client to update...we aren't waiting for all
-	
+
 	// TOFIX TO FIX TOFIX !!!
 	// I know this is bad, but I'm a badboy so no care.
 	// Really we should be using domains, but I've got a library raising an error
@@ -297,17 +297,17 @@ require("source-map-support").install();
 	process.on('uncaughtException', function (err) {
 	  console.log(err);
 	});
-	
+
 	/////////////////////////////////////////////////////////////// GO GO GO
-	
+
 	setupPassportStrategies();
-	
+
 	// synchronization
 	var io = __webpack_require__(30)(server);
 	io.on('connection', function (socket) {
 	  console.log('A new client opened a socket connection: ');
 	});
-	
+
 	sync();
 
 /***/ },
@@ -327,52 +327,52 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
+
 	var _promise = __webpack_require__(2);
-	
+
 	var _promise2 = _interopRequireDefault(_promise);
-	
+
 	var _classCallCheck2 = __webpack_require__(5);
-	
+
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
+
 	var _createClass2 = __webpack_require__(6);
-	
+
 	var _createClass3 = _interopRequireDefault(_createClass2);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	var unirest = __webpack_require__(8);
-	
+
 	// Login to todoist and store the latest items
-	
+
 	var DataSourceTodoist = function () {
 	  function DataSourceTodoist() {
 	    (0, _classCallCheck3.default)(this, DataSourceTodoist);
-	
+
 	    this.accessToken = '2e701fc52c75dd25878e6e1ebc88b20a58fe4fc8';
 	    this.items = [];
 	    // every so often synchronize?
 	  }
-	
+
 	  (0, _createClass3.default)(DataSourceTodoist, [{
 	    key: 'synchronize',
 	    value: function synchronize() {
 	      var _this = this;
-	
+
 	      if (!this.accessToken) return;
-	
+
 	      return new _promise2.default(function (resolve, reject) {
 	        var requestOptions = {
 	          token: _this.accessToken,
 	          seq_no: 0,
 	          resource_types: '["items"]'
 	        };
-	
+
 	        unirest.post('https://todoist.com/API/v7/sync').send(requestOptions).end(function (response) {
 	          _this.items = response.body.items;
 	          console.log('* Fetched Todoist data');
@@ -385,7 +385,7 @@ require("source-map-support").install();
 	    value: function dataForScreenItem(screenItem) {
 	      var projectId = screenItem.dataSourceOptions.project_id;
 	      var maxItemCount = screenItem.viewOptions.maxItems;
-	
+
 	      if (!this.items) {
 	        console.log('Todoist datasource has no items');
 	        return [];
@@ -409,7 +409,7 @@ require("source-map-support").install();
 	  }]);
 	  return DataSourceTodoist;
 	}();
-	
+
 	exports.default = DataSourceTodoist;
 
 /***/ },
@@ -436,48 +436,48 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
+
 	var _values = __webpack_require__(10);
-	
+
 	var _values2 = _interopRequireDefault(_values);
-	
+
 	var _promise = __webpack_require__(2);
-	
+
 	var _promise2 = _interopRequireDefault(_promise);
-	
+
 	var _classCallCheck2 = __webpack_require__(5);
-	
+
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
+
 	var _createClass2 = __webpack_require__(6);
-	
+
 	var _createClass3 = _interopRequireDefault(_createClass2);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	var Pinboard = __webpack_require__(11);
-	
+
 	// const unirest = require('unirest')
-	
+
 	// Login to todoist and store the latest items
-	
+
 	var DataSourcePinboard = function () {
 	  function DataSourcePinboard() {
 	    (0, _classCallCheck3.default)(this, DataSourcePinboard);
-	
+
 	    this.pinboard = new Pinboard(process.env.PINBOARD_API_KEY);
 	    this.data = [];
 	  }
-	
+
 	  (0, _createClass3.default)(DataSourcePinboard, [{
 	    key: 'synchronize',
 	    value: function synchronize() {
 	      var _this = this;
-	
+
 	      return new _promise2.default(function (resolve, reject) {
 	        _this.pinboard.all({}, function (err, res) {
 	          if (err) {
@@ -513,7 +513,7 @@ require("source-map-support").install();
 	  }]);
 	  return DataSourcePinboard;
 	}();
-	
+
 	exports.default = DataSourcePinboard;
 
 /***/ },
@@ -533,42 +533,42 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
+
 	var _promise = __webpack_require__(2);
-	
+
 	var _promise2 = _interopRequireDefault(_promise);
-	
+
 	var _classCallCheck2 = __webpack_require__(5);
-	
+
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
+
 	var _createClass2 = __webpack_require__(6);
-	
+
 	var _createClass3 = _interopRequireDefault(_createClass2);
-	
+
 	var _moment = __webpack_require__(13);
-	
+
 	var _moment2 = _interopRequireDefault(_moment);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	var gcal = __webpack_require__(14);
-	
-	
+
+
 	var PRIMARY_CALENDAR_ID = 'gr4yscale@gmail.com';
-	
+
 	var DataSourceGCal = function () {
 	  function DataSourceGCal() {
 	    (0, _classCallCheck3.default)(this, DataSourceGCal);
-	
+
 	    this.data = [];
 	    this.accessToken = '';
 	  }
-	
+
 	  (0, _createClass3.default)(DataSourceGCal, [{
 	    key: 'setAccessToken',
 	    value: function setAccessToken(accessToken) {
@@ -578,7 +578,7 @@ require("source-map-support").install();
 	    key: 'synchronize',
 	    value: function synchronize() {
 	      var _this = this;
-	
+
 	      if (this.accessToken === '') {
 	        console.log('Skipping Google Calendar sync, not authed!');
 	        return _promise2.default.resolve({ no: 'data' });
@@ -618,7 +618,7 @@ require("source-map-support").install();
 	  }]);
 	  return DataSourceGCal;
 	}();
-	
+
 	exports.default = DataSourceGCal;
 
 /***/ },
@@ -638,57 +638,57 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
+
 	var _promise = __webpack_require__(2);
-	
+
 	var _promise2 = _interopRequireDefault(_promise);
-	
+
 	var _classCallCheck2 = __webpack_require__(5);
-	
+
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
+
 	var _createClass2 = __webpack_require__(6);
-	
+
 	var _createClass3 = _interopRequireDefault(_createClass2);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	var Evernote = __webpack_require__(16).Evernote;
 	var ENML = __webpack_require__(37);
-	
+
 	var DataSourceEvernote = function () {
 	  function DataSourceEvernote() {
 	    (0, _classCallCheck3.default)(this, DataSourceEvernote);
-	
+
 	    this.accessToken = '';
 	    this.data = {
 	      scratchpadNoteContent: ''
 	    };
 	  }
-	
+
 	  (0, _createClass3.default)(DataSourceEvernote, [{
 	    key: 'setAccessToken',
 	    value: function setAccessToken(accessToken) {
 	      this.accessToken = accessToken;
 	    }
-	
+
 	    // TOFIX: give this datasource a list of note ids, and make an accessor
 	    // for noteItems by passing in the evernote note guid
-	
+
 	  }, {
 	    key: 'synchronize',
 	    value: function synchronize() {
 	      var _this = this;
-	
+
 	      console.log('Syncing evernote....');
 	      return new _promise2.default(function (resolve, reject) {
 	        _this.client = new Evernote.Client({ token: _this.accessToken, sandbox: false });
 	        _this.noteStore = _this.client.getNoteStore();
-	
+
 	        // for now I just care about a few specific notes from evernote, this datasource will just provide convenience to their content
 	        _this.noteStore.getNote(_this.accessToken, '79467e95-4a67-4ce2-9fb8-6b6a6f4e70d3', true, false, false, false, function (err, note) {
 	          if (err) {
@@ -713,9 +713,9 @@ require("source-map-support").install();
 	    key: 'scratchPadNote',
 	    value: function scratchPadNote(screenItem) {
 	      if (!this.data['scratchpadNoteContent']) return;
-	
+
 	      var maxItemCount = screenItem.viewOptions.maxItems;
-	
+
 	      return this.data['scratchpadNoteContent'].slice(0, maxItemCount).map(function (line) {
 	        return {
 	          datasource_id: 'yo',
@@ -727,7 +727,7 @@ require("source-map-support").install();
 	  }]);
 	  return DataSourceEvernote;
 	}();
-	
+
 	exports.default = DataSourceEvernote;
 
 /***/ },
@@ -741,37 +741,37 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
+
 	var _promise = __webpack_require__(2);
-	
+
 	var _promise2 = _interopRequireDefault(_promise);
-	
+
 	var _classCallCheck2 = __webpack_require__(5);
-	
+
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
+
 	var _createClass2 = __webpack_require__(6);
-	
+
 	var _createClass3 = _interopRequireDefault(_createClass2);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	var Gmail = __webpack_require__(18);
-	
+
 	var DataSourceGmail = function () {
 	  function DataSourceGmail() {
 	    (0, _classCallCheck3.default)(this, DataSourceGmail);
-	
+
 	    this.accessToken = '';
 	    this.data = {
 	      starredMessages: []
 	    };
 	  }
-	
+
 	  (0, _createClass3.default)(DataSourceGmail, [{
 	    key: 'setAccessToken',
 	    value: function setAccessToken(accessToken) {
@@ -781,13 +781,13 @@ require("source-map-support").install();
 	    key: 'synchronize',
 	    value: function synchronize() {
 	      var _this = this;
-	
+
 	      console.log('Syncing gmail....');
 	      return new _promise2.default(function (resolve, reject) {
-	
+
 	        _this.gmail = new Gmail(_this.accessToken);
 	        _this.messagesStream = _this.gmail.messages('label:starred', { format: 'metadata', max: 25 });
-	
+
 	        _this.messagesStream.on('data', function (data) {
 	          var sanitizedData = {
 	            datasource_id: data.id,
@@ -808,7 +808,7 @@ require("source-map-support").install();
 	  }]);
 	  return DataSourceGmail;
 	}();
-	
+
 	exports.default = DataSourceGmail;
 
 /***/ },
@@ -822,39 +822,39 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
+
 	var _assign = __webpack_require__(20);
-	
+
 	var _assign2 = _interopRequireDefault(_assign);
-	
+
 	var _getIterator2 = __webpack_require__(21);
-	
+
 	var _getIterator3 = _interopRequireDefault(_getIterator2);
-	
+
 	var _classCallCheck2 = __webpack_require__(5);
-	
+
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
+
 	var _createClass2 = __webpack_require__(6);
-	
+
 	var _createClass3 = _interopRequireDefault(_createClass2);
-	
+
 	var _screens = __webpack_require__(22);
-	
+
 	var _screens2 = _interopRequireDefault(_screens);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	var Screens = function () {
 	  // FIXME: beauuuuutiful - REFACTOR
-	
+
 	  function Screens(todoist, pinboard, gcal, evernote, gmail, github, creativeai, hackernews, pocket) {
 	    (0, _classCallCheck3.default)(this, Screens);
-	
+
 	    this.todoist = todoist;
 	    this.pinboard = pinboard;
 	    this.gcal = gcal;
@@ -865,7 +865,7 @@ require("source-map-support").install();
 	    this.hackernews = hackernews;
 	    this.pocket = pocket;
 	  }
-	
+
 	  (0, _createClass3.default)(Screens, [{
 	    key: 'screens',
 	    value: function screens() {
@@ -873,11 +873,11 @@ require("source-map-support").install();
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
 	      var _iteratorError = undefined;
-	
+
 	      try {
 	        for (var _iterator = (0, _getIterator3.default)(_screens2.default), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	          var screenItem = _step.value;
-	
+
 	          // FIXME: we're mutating screenItem here and adding it to an array
 	          switch (screenItem.type) {
 	            // handle grid screens
@@ -886,11 +886,11 @@ require("source-map-support").install();
 	              var _iteratorNormalCompletion2 = true;
 	              var _didIteratorError2 = false;
 	              var _iteratorError2 = undefined;
-	
+
 	              try {
 	                for (var _iterator2 = (0, _getIterator3.default)(screenItem.items), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 	                  var gridScreenItem = _step2.value;
-	
+
 	                  var _newData = this.dataForItem(gridScreenItem);
 	                  var newGridScreenItem = (0, _assign2.default)({}, gridScreenItem, _newData);
 	                  gridScreenItems.push(newGridScreenItem);
@@ -909,7 +909,7 @@ require("source-map-support").install();
 	                  }
 	                }
 	              }
-	
+
 	              screenItem.items = gridScreenItems;
 	              break;
 	            case 'list':
@@ -935,12 +935,12 @@ require("source-map-support").install();
 	          }
 	        }
 	      }
-	
+
 	      return screenItems;
 	    }
-	
+
 	    // FIXME: very obviously in need of a refactor below... no care for now...
-	
+
 	  }, {
 	    key: 'dataForItem',
 	    value: function dataForItem(item) {
@@ -1019,7 +1019,7 @@ require("source-map-support").install();
 	  }]);
 	  return Screens;
 	}();
-	
+
 	exports.default = Screens;
 
 /***/ },
@@ -1308,33 +1308,33 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
+
 	var _promise = __webpack_require__(2);
-	
+
 	var _promise2 = _interopRequireDefault(_promise);
-	
+
 	var _classCallCheck2 = __webpack_require__(5);
-	
+
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
+
 	var _createClass2 = __webpack_require__(6);
-	
+
 	var _createClass3 = _interopRequireDefault(_createClass2);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	var FeedParser = __webpack_require__(34);
 	// unfortunately we must use request instead of promises-based axios because FeedParser wants a stream
 	var request = __webpack_require__(35);
-	
+
 	var DataSourceRSS = function () {
 	  function DataSourceRSS(url, transform) {
 	    (0, _classCallCheck3.default)(this, DataSourceRSS);
-	
+
 	    this.url = url;
 	    this.data = [];
 	    if (transform) {
@@ -1351,16 +1351,16 @@ require("source-map-support").install();
 	      };
 	    }
 	  }
-	
+
 	  (0, _createClass3.default)(DataSourceRSS, [{
 	    key: 'synchronize',
 	    value: function synchronize() {
 	      var _this = this;
-	
+
 	      console.log('Syncing RSS feed: RSS feed: ' + this.url);
 	      return new _promise2.default(function (resolve, reject) {
 	        var feedparser = new FeedParser();
-	
+
 	        var feedParsingComplete = function feedParsingComplete(err) {
 	          if (err) {
 	            console.log('Error parsing RSS feed: ' + _this.url);
@@ -1370,27 +1370,27 @@ require("source-map-support").install();
 	            resolve();
 	          }
 	        };
-	
+
 	        // get a reference to data before 'this' scope is changed with ES5 style syntax
 	        // Using ES5 function syntax on the below callbacks to capture a reference to the feedparser stream
 	        var data = _this.data;
-	
+
 	        // make a stream requesting feed XML and pipe it to FeedParser
 	        request.get(_this.url).on('error', feedParsingComplete).on('response', function (res) {
 	          var stream = this; // request response callback is a stream, feedparser wants a stream
 	          if (res.statusCode != 200) return this.emit('error', new Error('Bad status code'));
 	          stream.pipe(feedparser);
 	        });
-	
+
 	        // hook up stream callbacks
 	        feedparser.on('error', feedParsingComplete);
 	        feedparser.on('end', feedParsingComplete);
-	
+
 	        feedparser.on('readable', function () {
 	          var stream = this;
 	          var meta = this.meta;
 	          var item = void 0;
-	
+
 	          while (item = stream.read()) {
 	            data.push(item);
 	          }
@@ -1408,7 +1408,7 @@ require("source-map-support").install();
 	  }]);
 	  return DataSourceRSS;
 	}();
-	
+
 	exports.default = DataSourceRSS;
 
 /***/ },
@@ -1423,48 +1423,48 @@ require("source-map-support").install();
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	
+
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	
+
 	var _promise = __webpack_require__(2);
-	
+
 	var _promise2 = _interopRequireDefault(_promise);
-	
+
 	var _classCallCheck2 = __webpack_require__(5);
-	
+
 	var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-	
+
 	var _createClass2 = __webpack_require__(6);
-	
+
 	var _createClass3 = _interopRequireDefault(_createClass2);
-	
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
+
 	var unirest = __webpack_require__(8);
-	
+
 	var DataSourcePocket = function () {
 	  function DataSourcePocket() {
 	    (0, _classCallCheck3.default)(this, DataSourcePocket);
-	
+
 	    this.data = [];
 	    this.accessToken = '';
 	  }
-	
+
 	  (0, _createClass3.default)(DataSourcePocket, [{
 	    key: 'setAccessToken',
 	    value: function setAccessToken(accessToken) {
 	      this.accessToken = accessToken;
 	    }
-	
+
 	    // get favorite items only for now
-	
+
 	  }, {
 	    key: 'synchronize',
 	    value: function synchronize() {
 	      var _this = this;
-	
+
 	      console.log('Syncing pocket');
 	      return new _promise2.default(function (resolve, reject) {
 	        var requestOptions = {
@@ -1510,7 +1510,7 @@ require("source-map-support").install();
 	  }]);
 	  return DataSourcePocket;
 	}();
-	
+
 	exports.default = DataSourcePocket;
 
 /***/ },
@@ -1527,4 +1527,3 @@ require("source-map-support").install();
 
 /***/ }
 /******/ ]);
-//# sourceMappingURL=server_built.js.map
