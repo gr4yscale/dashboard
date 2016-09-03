@@ -3,91 +3,7 @@
     "index" : 0,
     "description" : "Main screen",
     "type": "grid",
-    "items" : [
-      {
-        "index": 0,
-        "title": "Mission Critical",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 173212883
-        },
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 10
-        },
-        "sort_order": 0
-      },
-      {
-        "index": 1,
-        "title": "Inbox",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 150709951
-        },
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 10
-        },
-        "sort_order": 0
-      },
-      {
-        "index": 2,
-        "title": "Scratchpad",
-        "dataSource": "evernote",
-        "dataSourceOptions": {},
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 10
-        },
-        "sort_order": 0
-      },
-      {
-        "index": 3,
-        "title": "Errands / Shopping",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 150709955
-        },
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 10
-        },
-        "sort_order": 0
-      },
-      {
-        "index": 4,
-        "title": "Correspondence",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 158490814
-        },
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 10
-        },
-        "sort_order": 0
-      },
-      {
-        "index": 5,
-        "title": "Reminders",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 171391303
-        },
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 15
-        },
-        "sort_order": 0
-      }]
-  },
-
-  {
-    "index" : 1,
-    "description" : "Secondary",
-    "type": "grid",
-    "items" : [
-      {
+    "items" : [{
         "index": 0,
         "description": "Calendar",
         "title": "Calendar",
@@ -97,105 +13,191 @@
         "viewOptions": {
           "maxItems": 15
         }
+    },
+    {
+      "index": 1,
+      "description": "Starred Emails",
+      "title": "Starred Emails",
+      "gridScreenView": "list",
+      "dataSource": "gmail",
+      "dataSourceOptions": {},
+      "viewOptions": {
+        "maxItems": 10
+      }
+    },
+    {
+      "index": 2,
+      "title": "DO. THIS. NOW.",
+      "dataSource": "todoist",
+      "dataSourceOptions": {
+        "project_id": 173212883
       },
-      {
-        "index": 1,
-        "description": "Starred Emails",
-        "title": "Starred Emails",
+      "gridScreenView": "list",
+      "viewOptions": {
+        "maxItems": 10
+      },
+      "sort_order": 0
+    }]
+  },
+
+
+  {
+    "index" : 1,
+    "description" : "Second",
+    "type": "grid",
+    "items" : [{
+        "index": 0,
+        "description": "Scratchpad",
+        "title": "Scratchpad",
         "gridScreenView": "list",
-        "dataSource": "gmail",
+        "dataSource": "evernote",
         "dataSourceOptions": {},
         "viewOptions": {
           "maxItems": 15
         }
+    },
+    {
+      "index": 1,
+      "description": "Errands/Shopping",
+      "title": "Errands/Shopping",
+      "gridScreenView": "list",
+      "dataSource": "todoist",
+      "dataSourceOptions": {
+        "project_id": 173212883
       },
-      {
-        "index": 2,
+      "viewOptions": {
+        "maxItems": 15
+      }
+    },
+    {
+      "index": 2,
+      "description": "Correspondence",
+      "title": "Correspondence",
+      "gridScreenView": "list",
+      "dataSource": "todoist",
+      "dataSourceOptions": {
+        "project_id": 158490814
+      },
+      "viewOptions": {
+        "maxItems": 15
+      },
+      "sort_order": 0
+    }]
+  },
+
+
+  {
+    "index" : 2,
+    "description" : "Third",
+    "type": "grid",
+    "items" : [{
+        "index": 0,
+        "description": "Reminders",
+        "title": "Reminders",
+        "gridScreenView": "list",
+        "dataSource": "todoist",
+        "dataSourceOptions": {
+          "project_id": 171391303
+        },
+        "viewOptions": {
+          "maxItems": 15
+        }
+    },
+    {
+      "index": 1,
+      "description": "Everyday",
+      "title": "Everyday",
+      "gridScreenView": "list",
+      "dataSource": "todoist",
+      "dataSourceOptions": {
+        "project_id": 176202332
+      },
+      "viewOptions": {
+        "maxItems": 15
+      }
+    },
+    {
+      "index": 2,
+      "description": "Inbox",
+      "title": "Inbox",
+      "gridScreenView": "list",
+      "dataSource": "todoist",
+      "dataSourceOptions": {
+        "project_id": 150709951
+      },
+      "viewOptions": {
+        "maxItems": 15
+      },
+      "sort_order": 0
+    }]
+  },
+
+
+  {
+    "index" : 3,
+    "description" : "Fourth",
+    "type": "grid",
+    "items" : [{
+        "index": 0,
         "description": "Pocket Favorites",
         "title": "Pocket Favorites",
         "gridScreenView": "list",
         "dataSource": "pocket",
-        "dataSourceOptions": {},
-        "viewOptions": {
-          "maxItems": 15
-        }
-      }]
-  },
-
-  {
-    "index" : 2,
-    "description" : "Three",
-    "title" : "Three",
-    "type": "grid",
-    "items" : [
-      {
-        "index": 0,
-        "description": "CreativeAI",
-        "title": "CreativeAI",
-        "gridScreenView": "list",
-        "dataSource": "creativeai",
-        "dataSourceOptions": {},
         "viewOptions": {
           "maxItems": 10
         }
+    },
+    {
+      "index": 1,
+      "description": "Pinboard (unread)",
+      "title": "Pinboard (unread)",
+      "gridScreenView": "list",
+      "dataSource": "pinboard",
+      "viewOptions": {
+        "maxItems": 15
+      }
+    },
+    {
+      "index": 2,
+      "description": "Github",
+      "title": "Github",
+      "gridScreenView": "list",
+      "dataSource": "github",
+      "viewOptions": {
+        "maxItems": 15
       },
-      {
-        "index": 1,
+      "sort_order": 0
+    }]
+  },
+
+
+
+
+  {
+    "index" : 4,
+    "description" : "Five",
+    "type": "grid",
+    "items" : [{
+        "index": 0,
         "description": "Hacker News",
         "title": "Hacker News",
         "gridScreenView": "list",
         "dataSource": "hackernews",
-        "dataSourceOptions": {},
-        "viewOptions": {
-          "maxItems": 14
-        }
-      },
-      {
-        "index": 2,
-        "description": "Github",
-        "title": "Github",
-        "gridScreenView": "list",
-        "dataSource": "github",
-        "dataSourceOptions": {},
         "viewOptions": {
           "maxItems": 20
         }
+    },
+    {
+      "index": 1,
+      "description": "CreativeAI",
+      "title": "CreativeAI",
+      "gridScreenView": "list",
+      "dataSource": "creativeai",
+      "viewOptions": {
+        "maxItems": 20
       }
-    ]
-  },
-
-  {
-    "index" : 3,
-    "description" : "Four",
-    "title" : "Four",
-    "type": "grid",
-    "items" : [
-      {
-        "index": 1,
-        "title": "Projects",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 150718495
-        },
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 15
-        },
-        "sort_order": 0
-      },
-      {
-        "index": 2,
-        "title": "Learning",
-        "dataSource": "todoist",
-        "dataSourceOptions": {
-          "project_id": 150710059
-        },
-        "gridScreenView": "list",
-        "viewOptions": {
-          "maxItems": 15
-        },
-        "sort_order": 0
-      }
-    ]
+    }]
   }
+
+
 ]
