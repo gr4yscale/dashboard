@@ -9,6 +9,7 @@ const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 const EvernoteStrategy = require('passport-evernote').Strategy
 const PocketStrategy = require('passport-pocket')
+const TodoistStrategy = require('passport-todoist').Strategy
 
 // datasources - FIXME REFACTOR these out soon!
 import DataSourceTodoist from './src/datasources/todoist'
@@ -111,6 +112,20 @@ app.get('/auth/pocket/callback',
   }
 )
 
+app.get('/auth/todoist', passport.authenticate('todoist', { scope: 'data:read_write'}))
+app.get('/auth/todoist/callback',
+  passport.authenticate('todoist', {successRedirect: '/', failureRedirect: '/login'}),
+  (req, res) => {
+    console.log('req:')
+    console.log(req)
+    console.log('res:')
+    console.log(res)
+
+    todoist.accessToken = req.accessToken
+    sync()
+    res.redirect('/')
+  });
+
 const server = app.listen(process.env.PORT || 8080, () => {
   const host = server.address().address;
   const port = server.address().port;
@@ -160,40 +175,42 @@ function setupPassportStrategies() {
       })
     })
   )
+
+  passport.use(new TodoistStrategy({
+      clientID: process.env.TODOIST_CLIENT_ID,
+      clientSecret: process.env.TODOIST_CLIENT_SECRET,
+      callbackURL: callbackHostName + '/auth/todoist/callback'
+    },
+    (accessToken, done) => {
+      console.log('**** todoist auth callback')
+      console.log(accessToken)
+      todoist.accessToken = accessToken
+    })
+  )
 }
 
-// synchronization
-const io = require('socket.io')(server)
-io.on('connection', (socket) => {
-  console.log('A new client opened a socket connection.')
-})
-
 function sync() {
-  let p1 = todoist.synchronize()
-  let p2 = pinboard.synchronize()
-  let p3 = gcal.synchronize()
-  let p4 = evernote.synchronize()
-  let p5 = gmail.synchronize()
-  let p6 = github.synchronize()
-  let p7 = creativeai.synchronize()
-  let p8 = hackernews.synchronize()
-  let p9 = pocket.synchronize()
-
-  Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9])
-  .then(() => {
-    console.log('Synced all datasources...')
-    io.sockets.emit('synchronized')
-  })
-  .catch((err) => {
-    console.log('Error during synchronization!')
-    console.log(err)
-  })
+  // TOFIX: do a Promise.all([]) but make sure to still emit for the client to update even if we catch an error
+  todoist.synchronize()
+  pinboard.synchronize()
+  gcal.synchronize()
+  evernote.synchronize()
+  gmail.synchronize()
+  github.synchronize()
+  creativeai.synchronize()
+  hackernews.synchronize()
+  pocket.synchronize()
 }
 
 setInterval(() => {
   console.log('Syncing datasources...')
   sync()
 }, syncIntervalMins * 60 * 1000)
+
+setInterval(() => {
+  io.sockets.emit('synchronized')
+}, 30 * 1000) // every 30 seconds tell the client to update...we aren't waiting for all
+
 
 // TOFIX TO FIX TOFIX !!!
 // I know this is bad, but I'm a badboy so no care.
@@ -203,5 +220,14 @@ process.on('uncaughtException', (err) => {
   console.log(err);
 })
 
+/////////////////////////////////////////////////////////////// GO GO GO
+
 setupPassportStrategies()
+
+// synchronization
+const io = require('socket.io')(server)
+io.on('connection', (socket) => {
+  console.log('A new client opened a socket connection: ')
+})
+
 sync()
